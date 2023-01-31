@@ -1,0 +1,9 @@
+[
+  {
+    "type": "java",
+    "name": "frcJava",
+    "port": 8349,
+    "target": "10.17.8.2",
+    "project": "energize_2023_team1708-Imported"
+  }
+]
