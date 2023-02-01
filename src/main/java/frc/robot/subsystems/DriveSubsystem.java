@@ -4,11 +4,8 @@
 
 package frc.robot.subsystems;
 
-import com.ctre.phoenix.sensors.PigeonIMU;
-import com.kauailabs.navx.frc.AHRS;
+import com.ctre.phoenix.sensors.Pigeon2;
 
-import frc.robot.swervelib.Mk3SwerveModuleHelper;
-import frc.robot.swervelib.Mk4SwerveModuleHelper;
 import frc.robot.swervelib.Mk4iSwerveModuleHelper;
 import frc.robot.swervelib.SdsModuleConfigurations;
 import frc.robot.swervelib.SwerveModule;
@@ -17,7 +14,6 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
-import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
@@ -32,7 +28,6 @@ public class DriveSubsystem extends SubsystemBase {
    * This can be reduced to cap the robot's maximum speed. Typically, this is useful during initial testing of the robot.
    */
   public static final double MAX_VOLTAGE = 12.0;
-  // FIXME Measure the drivetrain's maximum velocity or calculate the theoretical.
   //  The formula for calculating the theoretical maximum velocity is:
   //   <Motor free speed RPM> / 60 * <Drive reduction> * <Wheel diameter meters> * pi
   //  By default this value is setup for a Mk3 standard module using Falcon500s to drive.
@@ -69,9 +64,7 @@ public class DriveSubsystem extends SubsystemBase {
   // By default we use a Pigeon for our gyroscope. But if you use another gyroscope, like a NavX, you can change this.
   // The important thing about how you configure your gyroscope is that rotating the robot counter-clockwise should
   // cause the angle reading to increase until it wraps back over to zero.
-  // FIXME Remove if you are using a Pigeon
-//   private final PigeonIMU m_pigeon = new PigeonIMU(DRIVETRAIN_PIGEON_ID);
-  // FIXME Uncomment if you are using a NavX
+  private final Pigeon2 m_pigeon = new Pigeon2(DRIVETRAIN_PIGEON_ID);
 //  private final AHRS m_navx = new AHRS(SPI.Port.kMXP, (byte) 200); // NavX connected over MXP
 
   // These are our modules. We initialize them in the constructor.
@@ -104,7 +97,6 @@ public class DriveSubsystem extends SubsystemBase {
 
     // By default we will use Falcon 500s in standard configuration. But if you use a different configuration or motors
     // you MUST change it. If you do not, your code will crash on startup.
-    // FIXME Setup motor configuration
     m_frontLeftModule = Mk4iSwerveModuleHelper.createFalcon500(
     //         // This parameter is optional, but will allow you to see the current state of the module on the dashboard.
             tab.getLayout("Front Left Module", BuiltInLayouts.kList)
@@ -162,26 +154,11 @@ public class DriveSubsystem extends SubsystemBase {
    * 'forwards' direction.
    */
   public void zeroGyroscope() {
-    // FIXME Remove if you are using a Pigeon
-//     m_pigeon.setFusedHeading(0.0);
-
-    // FIXME Uncomment if you are using a NavX
-    // m_navx.zeroYaw();
+    m_pigeon.setYaw(0.0);
   }
 
   public Rotation2d getGyroscopeRotation() {
-    // FIXME Remove if you are using a Pigeon
-//     return Rotation2d.fromDegrees(m_pigeon.getFusedHeading());
-
-    // FIXME Uncomment if you are using a NavX
-    // if (m_navx.isMagnetometerCalibrated()) {
-//      // We will only get valid fused headings if the magnetometer is calibrated
-        // return Rotation2d.fromDegrees(m_navx.getFusedHeading());
-    // }
-//
-//    // We have to invert the angle of the NavX so that rotating the robot counter-clockwise makes the angle increase.
-    // return Rotation2d.fromDegrees(360.0 - m_navx.getYaw());
-    return new Rotation2d(0);
+    return Rotation2d.fromDegrees(m_pigeon.getYaw());
   }
 
   public void drive(ChassisSpeeds chassisSpeeds) {

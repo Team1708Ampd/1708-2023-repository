@@ -45,7 +45,7 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-    new Button(controller::getBackButton).whenPressed(driveSub::zeroGyroscope);
+    new Button(controller::getAButton).whenPressed(driveSub::zeroGyroscope);
   }
 
   /**

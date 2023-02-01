@@ -4,12 +4,7 @@
 
 package frc.robot;
 
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
-
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.drive.DifferentialDrive;
-import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
@@ -23,18 +18,6 @@ public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
 
   private RobotContainer m_robotContainer;
-
-  // WPI_TalonFX frontLeft;
-  // WPI_TalonFX frontRight;
-  // WPI_TalonFX backLeft;
-  // WPI_TalonFX backRight;
-
-  // MotorControllerGroup leftDrive;
-  // MotorControllerGroup rightDrive;
-  // DifferentialDrive drive;
-
-  // XboxController xboxController;
-
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
@@ -44,17 +27,6 @@ public class Robot extends TimedRobot {
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
-
-    // xboxController = new XboxController(0);
-
-    // frontLeft = new WPI_TalonFX(Constants.FRONT_LEFT_MODULE_DRIVE_MOTOR, "Hannibal the CANibal");
-    // frontRight = new WPI_TalonFX(Constants.FRONT_RIGHT_MODULE_DRIVE_MOTOR, "Hannibal the CANibal");
-    // backLeft = new WPI_TalonFX(Constants.BACK_LEFT_MODULE_DRIVE_MOTOR, "Hannibal the CANibal");
-    // backRight = new WPI_TalonFX(Constants.BACK_RIGHT_MODULE_DRIVE_MOTOR, "Hannibal the CANibal");
-
-    // leftDrive = new MotorControllerGroup(frontLeft, backLeft);
-    // rightDrive = new MotorControllerGroup(frontRight, backRight);
-    // drive = new DifferentialDrive(leftDrive, rightDrive);
   }
 
   /**
@@ -108,9 +80,7 @@ public class Robot extends TimedRobot {
 
   /** This function is called periodically during operator control. */
   @Override
-  public void teleopPeriodic() {
-    // drive.arcadeDrive(xboxController.getLeftY(), xboxController.getRightX());
-  }
+  public void teleopPeriodic() {}
 
   @Override
   public void testInit() {
