@@ -23,6 +23,7 @@ public class RobotContainer {
 
   private final DriveSubsystem driveSub = new DriveSubsystem();
   private final XboxController controller = new XboxController(0);
+  private RobotState m_RobotState = null;
   
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -36,6 +37,9 @@ public class RobotContainer {
 ));
     // Configure the button bindings
     configureButtonBindings();
+
+    /* Get the current RobotState instance */
+    m_RobotState = RobotState.GetInstance();
   }
 
   /**
