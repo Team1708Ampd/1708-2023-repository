@@ -38,11 +38,14 @@ public class ArmSubsystem extends SubsystemBase {
         // Two Falcon Fx Talon 500 that work together to drive the Arm angle. 
         // use like this: TalonFX motor = new TalonFX(driveConfiguration, "Hannibal the CANibal");
         // Will have encoder at top of arm bracket to tell position
-        // Want to use PID controller: ref controller = motor.getPIDController(); (?)
+        // Want to use PID controller
+        //mdh note: check out the createFalcon500 factory
+        // 315 to 1 ratio for arm(?)
 
         //Create the Two TalonFx Motors to drive the Arm
-        TalonFX armMotor1 = new TalonFX(talonDeviceNum1, "ArmMotor1");
-        TalonFX armMotor2 = new TalonFX(talonDeviceNum2, "ArmMotor2");
+        // TalonFX armMotor1 = new TalonFX(talonDeviceNum1, "ArmMotor1");
+        armMotor1 = new TalonFX(talonDeviceNum1, "ArmMotor1");
+        armMotor2 = new TalonFX(talonDeviceNum2, "ArmMotor2");
 
         //Create the config for the motors. Each are equally matched here. Defaults taken from documentation
         TalonFXConfiguration armConfig = new TalonFXConfiguration();
@@ -50,6 +53,10 @@ public class ArmSubsystem extends SubsystemBase {
         armConfig.supplyCurrLimit.triggerThresholdCurrent = 40; // the peak supply current, in amps
         armConfig.supplyCurrLimit.triggerThresholdTime = 1.5; // the time at the peak supply current before the limit triggers, in sec
         armConfig.supplyCurrLimit.currentLimit = 30; // the current to maintain if the peak supply limit is triggered
+        //Setup PID Control
+        armConfig.slot0.kP = pidProportional;
+        armConfig.slot0.kI = pidIntegral;
+        armConfig.slot0.kD = pidDerivative;
         
         //Config the Current Limits for the motors 
         CtreUtils.checkCtreError(armMotor1.configAllSettings(armConfig), "Failed to configure Falcon 500: ArmMotor1");
@@ -60,24 +67,42 @@ public class ArmSubsystem extends SubsystemBase {
         armMotor2.set(TalonFXControlMode.PercentOutput, 0.5); // runs the motor at 50% power
 
 
+
     }
 
     @Override
     public void periodic() {
 
-
+        armMotor1.set(TalonFXControlMode.Position, positionArmMotor1);
+        armMotor1.set(TalonFXControlMode.Position, positionArmMotor2);
 
     }
 
     //Method to print out debug info for the two Arm motors
     public void debugMotors() {
 
-        // System.out.println(armMotor1.GetSelectedSensorPosition);
-        // std::cout << armMotor1.GetSelectedSensorPosition() << std::endl; // prints the position of the selected sensor
-        // std::cout << motor.GetSelectedSensorVelocity() << std::endl; // prints the velocity recorded by the selected sensor
-        // std::cout << motor.GetMotorOutputPercent() << std::endl; // prints the percent output of the motor (0.5)
-        // std::cout << motor.GetStatorCurrent() << std::endl; // prints the output current of the motor
+        System.out.println(armMotor1.getSelectedSensorPosition());      // prints the position of the selected sensor
+        System.out.println(armMotor1.getSelectedSensorVelocity());      // prints the velocity recorded by the selected sensor
+        System.out.println(armMotor1.getMotorOutputPercent());          // prints the percent output of the motor (0.5)
+        System.out.println(armMotor1.getStatorCurrent());               // prints the output current of the motor
+        
+        System.out.println(armMotor2.getSelectedSensorPosition());      // prints the position of the selected sensor
+        System.out.println(armMotor2.getSelectedSensorVelocity());      // prints the velocity recorded by the selected sensor
+        System.out.println(armMotor2.getMotorOutputPercent());          // prints the percent output of the motor (0.5)
+        System.out.println(armMotor2.getStatorCurrent());               // prints the output current of the motor
     }
 
+
+    private TalonFX armMotor1;
+    private TalonFX armMotor2;
+
+    // PID configuration
+    private static final double pidProportional  = 0.2;
+    private static final double pidIntegral      = 0.0;
+    private static final double pidDerivative    = 0.1;
+
+    // Motor Position Values
+    double positionArmMotor1 = 0;
+    double positionArmMotor2 = 0;
 
 }
