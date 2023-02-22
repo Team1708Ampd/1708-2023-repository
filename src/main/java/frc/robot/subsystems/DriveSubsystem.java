@@ -5,10 +5,10 @@
 package frc.robot.subsystems;
 
 import com.ctre.phoenix.sensors.Pigeon2;
-import com.swervedrivespecialties.swervelib.MkSwerveModuleBuilder;
-import com.swervedrivespecialties.swervelib.SwerveModule;
-import com.swervedrivespecialties.swervelib.SdsModuleConfigurations;
-import com.swervedrivespecialties.swervelib.MotorType;
+import frc.robot.swervelib.MkSwerveModuleBuilder;
+import frc.robot.swervelib.SwerveModule;
+import frc.robot.swervelib.SdsModuleConfigurations;
+import frc.robot.swervelib.MotorType;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -66,6 +66,8 @@ private final MkSwerveModuleBuilder m_mk4iModuleBuilder = new MkSwerveModuleBuil
 
   public DriveSubsystem() {
     ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
+
+    zeroGyroscope();
 
     // By default we will use Falcon 500s in standard configuration. But if you use a different configuration or motors
     // you MUST change it. If you do not, your code will crash on startup.
@@ -128,6 +130,7 @@ private final MkSwerveModuleBuilder m_mk4iModuleBuilder = new MkSwerveModuleBuil
 
   @Override
   public void periodic() {
+    System.out.printf("Yaw: %f\n", m_pigeon.getYaw());
     SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(m_chassisSpeeds);
     
     SwerveDriveKinematics.desaturateWheelSpeeds(states, MAX_VELOCITY_METERS_PER_SECOND);
