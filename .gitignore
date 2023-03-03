@@ -1,0 +1,8 @@
+// .gitignore for Wpilib robot projects
+
+// ignore binaries
+**/bin
+
+// ignore gradle 
+**/gradle
+
