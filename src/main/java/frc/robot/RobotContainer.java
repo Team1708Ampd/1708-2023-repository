@@ -19,6 +19,17 @@ import frc.robot.AutoConstants.*;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Button;
+import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+
+import frc.robot.commands.DriveCommand;
+import frc.robot.commands.IntakeCommand;
+import frc.robot.commands.ManualArmDown;
+import frc.robot.commands.ManualArmIn;
+import frc.robot.commands.ManualArmOut;
+import frc.robot.commands.ManualArmUp;
+import frc.robot.commands.ManualWristDown;
+import frc.robot.commands.ManualWristUp;
+import frc.robot.commands.OuttakeCommand;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -31,6 +42,7 @@ public class RobotContainer {
 
   private final DriveSubsystem driveSub = new DriveSubsystem(AutoConstants.odo_BluePositionStart6);
   private final XboxController controller = new XboxController(0);
+  private final XboxController controller2 = new XboxController(1);
 
   private MotionControl m_MotionControl;
   private AutoRoutines m_AutoRoutine;
@@ -44,7 +56,7 @@ public class RobotContainer {
       () -> -modifyAxis(controller.getLeftY()) * DriveConstants.MAX_VELOCITY_METERS_PER_SECOND,
       () -> -modifyAxis(controller.getLeftX()) * DriveConstants.MAX_VELOCITY_METERS_PER_SECOND,
       () -> -modifyAxis(controller.getRightX()) * DriveConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND
-));
+    ));
     // Configure the button bindings
     configureButtonBindings();
 
@@ -59,7 +71,17 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-    new Button(controller::getAButton).whenPressed(driveSub::zeroGyroscope);
+    new JoystickButton(controller2, XboxController.Button.kA.value).whileTrue(new IntakeCommand());
+    new JoystickButton(controller2, XboxController.Button.kB.value).whileTrue(new OuttakeCommand());
+
+    new JoystickButton(controller2, XboxController.Button.kX.value).whileTrue(new ManualWristUp());
+    new JoystickButton(controller2, XboxController.Button.kY.value).whileTrue(new ManualWristDown());
+
+    new JoystickButton(controller2, XboxController.Button.kLeftBumper.value).whileTrue(new ManualArmUp());
+    new JoystickButton(controller2, XboxController.Button.kRightBumper.value).whileTrue(new ManualArmDown());
+
+    new JoystickButton(controller2, XboxController.Button.kBack.value).whileTrue(new ManualArmIn());
+    new JoystickButton(controller2, XboxController.Button.kStart.value).whileTrue(new ManualArmOut());
   }
 
   /**

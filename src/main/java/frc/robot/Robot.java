@@ -7,11 +7,16 @@ package frc.robot;
 import com.ctre.phoenix.sensors.Pigeon2;
 
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.commands.DriveCommand;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.ArmSubsystem;
+import frc.robot.subsystems.ClawSub;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -20,6 +25,10 @@ import frc.robot.subsystems.DriveSubsystem;
  * project.
  */
 public class Robot extends TimedRobot {
+
+  public final double LIMELIGHT_ONE_HEIGHT = 0; 
+  public final double LIMELIGHT_TWO_HEIGHT = 0;
+
   private Command m_autonomousCommand;
 
   private RobotContainer m_robotContainer;
@@ -28,12 +37,23 @@ public class Robot extends TimedRobot {
    * initialization code.
    */
   Pigeon2 gyro;
+  public static ArmSubsystem armSub;
+  public static ClawSub clawSub;
+
+  NetworkTable limelight_one;
+  NetworkTable limelight_two;
+
   @Override
   public void robotInit() {
     gyro = new Pigeon2(5, "Hannibal the CANibal");
+    armSub = new ArmSubsystem(8, 9, 10);
+    clawSub = new ClawSub(12, 11);
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
+
+    limelight_one = NetworkTableInstance.getDefault().getTable("limelight-one");
+    limelight_two = NetworkTableInstance.getDefault().getTable("limelight-two");
   }
 
   /**
@@ -109,4 +129,15 @@ public class Robot extends TimedRobot {
   /** This function is called periodically whilst in simulation. */
   @Override
   public void simulationPeriodic() {}
+
+  public double getCameraDistance(NetworkTable table, double limelightHeight, double goalHeight) {
+    table.getEntry("pipeline").setDouble(1.0);
+    NetworkTableEntry ty = table.getEntry("ty");
+    double targetOffsetAngle_Vertical = ty.getDouble(0.0);
+
+
+    double angleToGoalDegrees = targetOffsetAngle_Vertical;
+    double angleToGoalRadians = angleToGoalDegrees * (3.14159 / 180.0);
+    return (goalHeight - limelightHeight) / Math.tan(angleToGoalRadians);
+  }
 }
