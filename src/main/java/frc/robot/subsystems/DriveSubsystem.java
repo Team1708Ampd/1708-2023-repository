@@ -9,11 +9,13 @@ import frc.robot.swervelib.MkSwerveModuleBuilder;
 import frc.robot.swervelib.SwerveModule;
 import frc.robot.swervelib.SdsModuleConfigurations;
 import frc.robot.swervelib.MotorType;
-
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveDriveKinematics;
+import edu.wpi.first.math.kinematics.SwerveDriveOdometry;
+import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -21,38 +23,17 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import static frc.robot.Constants.*;
+import static frc.robot.AutoConstants.*;
+import static frc.robot.DriveConstants.*;
 
 public class DriveSubsystem extends SubsystemBase {
-
-  public static final double MAX_VOLTAGE = 12.0;
-  //  The formula for calculating the theoretical maximum velocity is:
-  //   <Motor free speed RPM> / 60 * <Drive reduction> * <Wheel diameter meters> * pi
-  public static final double MAX_VELOCITY_METERS_PER_SECOND = 6380.0 / 60.0 *
-          SdsModuleConfigurations.MK4I_L3.getDriveReduction() *
-          SdsModuleConfigurations.MK4I_L3.getWheelDiameter() * Math.PI;
-  
-//The maximum angular velocity of the robot in radians per second.
-// Here we calculate the theoretical maximum angular velocity. You can also replace this with a measured amount.
-  public static final double MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND = MAX_VELOCITY_METERS_PER_SECOND /
-          Math.hypot(DRIVETRAIN_TRACKWIDTH_METERS / 2.0, DRIVETRAIN_WHEELBASE_METERS / 2.0);
-
-  private final SwerveDriveKinematics m_kinematics = new SwerveDriveKinematics(
-          // Front left
-          new Translation2d(DRIVETRAIN_TRACKWIDTH_METERS / 2.0, DRIVETRAIN_WHEELBASE_METERS / 2.0),
-          // Front right
-          new Translation2d(DRIVETRAIN_TRACKWIDTH_METERS / 2.0, -DRIVETRAIN_WHEELBASE_METERS / 2.0),
-          // Back left
-          new Translation2d(-DRIVETRAIN_TRACKWIDTH_METERS / 2.0, DRIVETRAIN_WHEELBASE_METERS / 2.0),
-          // Back right
-          new Translation2d(-DRIVETRAIN_TRACKWIDTH_METERS / 2.0, -DRIVETRAIN_WHEELBASE_METERS / 2.0)
-  );
 
   // By default we use a Pigeon for our gyroscope. But if you use another gyroscope, like a NavX, you can change this.
   // cause the angle reading to increase until it wraps back over to zero.
   private final Pigeon2 m_pigeon = new Pigeon2(DRIVETRAIN_PIGEON_ID, "Hannibal the CANibal");
-//  private final AHRS m_navx = new AHRS(SPI.Port.kMXP, (byte) 200); // NavX connected over MXP
 
-private final MkSwerveModuleBuilder m_mk4iModuleBuilder = new MkSwerveModuleBuilder();
+
+  private final MkSwerveModuleBuilder m_mk4iModuleBuilder = new MkSwerveModuleBuilder();
 
   private String m_Canbus = "Hannibal the CANibal";
 
@@ -62,13 +43,15 @@ private final MkSwerveModuleBuilder m_mk4iModuleBuilder = new MkSwerveModuleBuil
   private final SwerveModule m_backLeftModule;
   private final SwerveModule m_backRightModule;
 
+  // Define Odometry subsystem for the SDS
+  private final SwerveDriveOdometry m_Odometry;
+
+  ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
+
+
   private ChassisSpeeds m_chassisSpeeds = new ChassisSpeeds(0.0, 0.0, 0.0);
 
-  public DriveSubsystem() {
-    ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
-
-    zeroGyroscope();
-
+  public DriveSubsystem(Pose2d startPose) {
     // By default we will use Falcon 500s in standard configuration. But if you use a different configuration or motors
     // you MUST change it. If you do not, your code will crash on startup.
     m_frontLeftModule = m_mk4iModuleBuilder.withDriveMotor(MotorType.FALCON, FRONT_LEFT_MODULE_DRIVE_MOTOR, m_Canbus)
@@ -110,6 +93,28 @@ private final MkSwerveModuleBuilder m_mk4iModuleBuilder = new MkSwerveModuleBuil
                                            .withSteerEncoderPort(BACK_RIGHT_MODULE_STEER_ENCODER, m_Canbus)
                                            .withSteerOffset(BACK_RIGHT_MODULE_STEER_OFFSET)
                                            .build();
+
+    zeroGyroscope();                                       
+
+    // Initialize the odometry to one of the starting point defined in MotionConstants
+    m_Odometry = new SwerveDriveOdometry(kRobotKinematics, 
+                                         getGyroscopeRotation(), 
+                                         new SwerveModulePosition[]{
+                                         m_frontLeftModule.getPosition(), 
+                                         m_frontRightModule.getPosition(),
+                                         m_backLeftModule.getPosition(), 
+                                         m_backRightModule.getPosition()}, 
+                                         startPose);
+
+    tab.getLayout("Localization", BuiltInLayouts.kList)
+                  .withSize(2, 4)
+                  .withPosition(1, 1)
+                  .addNumber("Heading", ()->getGyroscopeRotation().getDegrees());
+                       
+    tab.getLayout("Localization", BuiltInLayouts.kList)
+                .withSize(2, 4)
+                .withPosition(1, 1)
+                .addString("Odometry", ()->m_Odometry.getPoseMeters().getTranslation().toString());
   }
 
   /**
@@ -128,10 +133,34 @@ private final MkSwerveModuleBuilder m_mk4iModuleBuilder = new MkSwerveModuleBuil
     m_chassisSpeeds = chassisSpeeds;
   }
 
+  public void drive(SwerveModuleState[] nextStates)
+  {
+    m_chassisSpeeds = kRobotKinematics.toChassisSpeeds(nextStates);
+  }
+
+  // Gets the current pose from the Odometry Subsystem
+  public Pose2d getCurrentPose2d()
+  {
+    return m_Odometry.getPoseMeters();
+  }
+
+  // Set the current Pose of the robot
+  public void setCurrentPose(Pose2d currentPose)
+  {
+    //m_Odometry.se
+  }
+
   @Override
   public void periodic() {
-    System.out.printf("Yaw: %f\n", m_pigeon.getYaw());
-    SwerveModuleState[] states = m_kinematics.toSwerveModuleStates(m_chassisSpeeds);
+    SwerveModuleState[] states = kRobotKinematics.toSwerveModuleStates(m_chassisSpeeds);
+
+    // We just read the current states of the Swerve Modules, so update the Odometry as well
+    m_Odometry.update(getGyroscopeRotation(), 
+                      new SwerveModulePosition[]{
+                        m_frontLeftModule.getPosition(), 
+                        m_frontRightModule.getPosition(), 
+                        m_backLeftModule.getPosition(), 
+                        m_backRightModule.getPosition()});
     
     SwerveDriveKinematics.desaturateWheelSpeeds(states, MAX_VELOCITY_METERS_PER_SECOND);
 

@@ -14,9 +14,9 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.commands.DriveCommand;
+import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ClawSub;
-import frc.robot.subsystems.DriveSubsystem;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -25,22 +25,24 @@ import frc.robot.subsystems.DriveSubsystem;
  * project.
  */
 public class Robot extends TimedRobot {
+
   public final double LIMELIGHT_ONE_HEIGHT = 0; 
   public final double LIMELIGHT_TWO_HEIGHT = 0;
 
   private Command m_autonomousCommand;
 
   private RobotContainer m_robotContainer;
-  public static ArmSubsystem armSub;
-  public static ClawSub clawSub;
-
-  NetworkTable limelight_one;
-  NetworkTable limelight_two;
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
    */
   Pigeon2 gyro;
+  public static ArmSubsystem armSub;
+  public static ClawSub clawSub;
+
+  NetworkTable limelight_one;
+  NetworkTable limelight_two;
+
   @Override
   public void robotInit() {
     gyro = new Pigeon2(5, "Hannibal the CANibal");
@@ -50,8 +52,8 @@ public class Robot extends TimedRobot {
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
 
-     limelight_one = NetworkTableInstance.getDefault().getTable("limelight-one");
-     limelight_two = NetworkTableInstance.getDefault().getTable("limelight-two");
+    limelight_one = NetworkTableInstance.getDefault().getTable("limelight-one");
+    limelight_two = NetworkTableInstance.getDefault().getTable("limelight-two");
   }
 
   /**
@@ -68,8 +70,6 @@ public class Robot extends TimedRobot {
     // and running subsystem periodic() methods.  This must be called from the robot's periodic
     // block in order for anything in the Command-based framework to work.
     CommandScheduler.getInstance().run();
-    // System.out.println("Limelight 1 distance from low cone: " + getCameraDistanceLowCone(limelight_one));
-    // System.out.println("Limelight 2 distance from low cone: " + getCameraDistanceLowCone(limelight_two));
   }
 
   /** This function is called once each time the robot enters Disabled mode. */
