@@ -63,7 +63,7 @@ public class ArmSubsystem extends SubsystemBase {
 
     @Override
     public void periodic() {
-      System.out.println("Arm CANCoder absolute position: " + armEncoder.getAbsolutePosition());
+      // System.out.println("Arm CANCoder absolute position: " + armEncoder.getAbsolutePosition());
     }
 
     public void setArm(double power) {
