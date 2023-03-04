@@ -15,7 +15,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.commands.DriveCommand;
 import frc.robot.subsystems.DriveSubsystem;
-import frc.robot.subsystems.ArmSubsystem;
+import frc.robot.subsystems.ArmRotationSubsystem;
 import frc.robot.subsystems.ClawSub;
 
 /**
@@ -37,7 +37,7 @@ public class Robot extends TimedRobot {
    * initialization code.
    */
   Pigeon2 gyro;
-  public static ArmSubsystem armSub;
+  public static ArmRotationSubsystem armSub;
   public static ClawSub clawSub;
 
   NetworkTable limelight_one;
@@ -45,8 +45,7 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotInit() {
-    gyro = new Pigeon2(5, "Hannibal the CANibal");
-    armSub = new ArmSubsystem(8, 9, 10);
+    gyro = new Pigeon2(5, "Hannibal the CANibal");    
     clawSub = new ClawSub(12, 11);
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.

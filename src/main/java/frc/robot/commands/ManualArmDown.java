@@ -21,13 +21,13 @@ public class ManualArmDown extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    Robot.armSub.setArm(-0.2);
+    Robot.armSub.setArmOutput(-0.2);
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    Robot.armSub.setArm(0);
+    Robot.armSub.setArmOutput(0);
   }
 
   // Returns true when the command should end.

@@ -4,6 +4,11 @@
 
 package frc.robot;
 
+import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
+import com.ctre.phoenix.sensors.AbsoluteSensorRange;
+import com.ctre.phoenix.sensors.CANCoderConfiguration;
+import com.ctre.phoenix.sensors.SensorInitializationStrategy;
+
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -13,9 +18,12 @@ import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.commands.DriveCommand;
+import frc.robot.subsystems.ArmRotationSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.swervelib.ctre.CanCoderFactoryBuilder.Direction;
 import frc.robot.DriveConstants.*;
 import frc.robot.AutoConstants.*;
+import frc.robot.ArmConstants.*;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.Button;
@@ -30,6 +38,7 @@ import frc.robot.commands.ManualArmUp;
 import frc.robot.commands.ManualWristDown;
 import frc.robot.commands.ManualWristUp;
 import frc.robot.commands.OuttakeCommand;
+
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -46,6 +55,7 @@ public class RobotContainer {
 
   private MotionControl m_MotionControl;
   private AutoRoutines m_AutoRoutine;
+  private ArmRotationSubsystem  s_ArmRotation;
   
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -59,6 +69,9 @@ public class RobotContainer {
     ));
     // Configure the button bindings
     configureButtonBindings();
+
+    // Initialize the robot arm. This takes care of rotation and telescoping subsystems
+    initRobotArm();
 
     // Initialize the AutoRoutines that control robotic movement
     initAutoRoutines();
@@ -144,8 +157,28 @@ public class RobotContainer {
     nextTrajectory.setStartPose(AutoConstants.odo_BluePositionStart6);
     nextTrajectory.setEndPose(new Pose2d(4.5, 2.6, new Rotation2d(0)));
 
-
     m_AutoRoutine.addAutoTrajectory(nextTrajectory);
+  }
 
+  private void initRobotArm()
+  {
+    
+    //Create the config for the motors. Each are equally matched here. Defaults taken from documentation
+    TalonFXConfiguration armConfig = new TalonFXConfiguration();
+    armConfig.supplyCurrLimit.enable = true;
+    armConfig.supplyCurrLimit.triggerThresholdCurrent = 40; // the peak supply current, in amps
+    armConfig.supplyCurrLimit.triggerThresholdTime = 1.5; // the time at the peak supply current before the limit triggers, in sec
+    armConfig.supplyCurrLimit.currentLimit = 30; // the current to maintain if the peak supply limit is triggered
+
+    // Build the CANCoder config
+    CANCoderConfiguration cancoderConfig = new CANCoderConfiguration();
+    cancoderConfig.absoluteSensorRange = AbsoluteSensorRange.Unsigned_0_to_360;
+    cancoderConfig.magnetOffsetDegrees = Math.toDegrees(ArmConstants.ARM_ROTATION_OFFSET);
+    cancoderConfig.sensorDirection = Direction.CLOCKWISE == ArmConstants.ARM_DIRECTION;
+    cancoderConfig.initializationStrategy = SensorInitializationStrategy.BootToAbsolutePosition;
+
+    s_ArmRotation = new ArmRotationSubsystem(8, 9, 10)
+                          .withTalonConfig(armConfig)
+                          .withEncoderConfiguration(cancoderConfig);
   }
 }
