@@ -25,6 +25,8 @@ public class ArmSetPositionCommand extends CommandBase{
     // Target angle for the command
     private double targetAngle = 0;
 
+    boolean useSuppliedConstants = false;
+
     public ArmSetPositionCommand(ArmRotationSubsystem rotSubsystem, double newAngle)
     {
         armSubsystem = rotSubsystem;
@@ -34,7 +36,10 @@ public class ArmSetPositionCommand extends CommandBase{
         addRequirements(rotSubsystem);
 
         // Get the control constants
-        getControlConstants();
+        if (!useSuppliedConstants){
+            // Get the control constants
+            getControlConstants();
+        }
 
         // Init the controllers. PID gets a tolerance
         pidController = new PIDController(kP, kI, kD);
@@ -72,6 +77,17 @@ public class ArmSetPositionCommand extends CommandBase{
     {
         // Set the arm output to no power
         armSubsystem.setArmOutput(0);
+    }
+
+    public ArmSetPositionCommand withControlConstants(double newkP, double newkI, double newkD, double newffV, double newffG)
+    {
+        useSuppliedConstants = true;
+        kP = newkP;
+        kI = newkI;
+        kD = newkD;
+        kV = newffV;
+        kG = newffG;
+        return this;
     }
 
     // isfinished override

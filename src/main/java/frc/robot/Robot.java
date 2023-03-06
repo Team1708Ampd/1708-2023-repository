@@ -12,6 +12,7 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.commands.DriveCommand;
@@ -138,4 +139,5 @@ public class Robot extends TimedRobot {
     double angleToGoalRadians = angleToGoalDegrees * (3.14159 / 180.0);
     return (goalHeight - limelightHeight) / Math.tan(angleToGoalRadians);
   }
+
 }

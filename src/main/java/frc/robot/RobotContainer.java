@@ -18,6 +18,8 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.commands.ArmSetPositionCommand;
 import frc.robot.commands.DriveCommand;
 import frc.robot.subsystems.ArmRotationSubsystem;
 import frc.robot.subsystems.ClawSubsystem;
@@ -65,6 +67,8 @@ public class RobotContainer {
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
 
+    ARMPIDDebug();
+
     driveSub.setDefaultCommand(new DriveCommand(
       driveSub,
       () -> -modifyAxis(controller.getLeftY()) * DriveConstants.MAX_VELOCITY_METERS_PER_SECOND,
@@ -108,9 +112,14 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
                        
+    return new ArmSetPositionCommand(s_ArmRotation, SmartDashboard.getNumber("Arm Setpoint", 0))
+                  .withControlConstants(SmartDashboard.getNumber("Arm kP", 0),
+                                        SmartDashboard.getNumber("Arm kI", 0), 
+                                        SmartDashboard.getNumber("Arm kD", 0), 
+                                        SmartDashboard.getNumber("Arm kV", 0), 
+                                        SmartDashboard.getNumber("Arm kG", 0));
 
-
-    return m_AutoManager.generateAuto();
+    //return m_AutoManager.generateAuto();
   }
 
   private static double deadband(double value, double deadband) {
@@ -179,5 +188,15 @@ public class RobotContainer {
     s_Claw = new ClawSubsystem(12, 11, 0)
                     .withTalonConfig(armConfig)
                     .withEncoderConfiguration(cancoderConfig);
+  }
+
+  private void ARMPIDDebug()
+  {
+    SmartDashboard.putNumber("ARM kP", 0.0);
+    SmartDashboard.putNumber("ARM kI", 0.0);
+    SmartDashboard.putNumber("ARM kD", 0.0);
+    SmartDashboard.putNumber("ARM kV", 0.0);
+    SmartDashboard.putNumber("ARM kG", 0.0);
+    SmartDashboard.putNumber("Arm Setpoint", 0.0);
   }
 }
