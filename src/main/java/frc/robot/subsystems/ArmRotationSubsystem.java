@@ -167,7 +167,7 @@ public class ArmRotationSubsystem extends SubsystemBase {
   }
 
   // Get the PID Constants
-  public double getPIDki()
+  public double getPIDkI()
   {
     return PIDkI;
   }
