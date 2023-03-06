@@ -10,7 +10,7 @@ import frc.robot.Robot;
 public class ManualArmOut extends CommandBase {
   /** Creates a new ManualArmOut. */
   public ManualArmOut() {
-    addRequirements(Robot.armSub);
+    //addRequirements(Robot.armSub);
     // Use addRequirements() here to declare subsystem dependencies.
   }
 

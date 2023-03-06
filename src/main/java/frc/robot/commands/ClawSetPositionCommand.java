@@ -3,9 +3,9 @@ package frc.robot.commands;
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.subsystems.ArmRotationSubsystem;
+import frc.robot.subsystems.ClawSubsystem;
 
-public class ArmSetPositionCommand extends CommandBase{
+public class ClawSetPositionCommand extends CommandBase{
 
     // Feed forward controller
     private ArmFeedforward ffController;
@@ -14,7 +14,7 @@ public class ArmSetPositionCommand extends CommandBase{
     private PIDController pidController;
 
     // Arm Rotation Subsystem
-    private ArmRotationSubsystem armSubsystem;
+    private ClawSubsystem clawSubsystem;
 
     // PID constants
     private double kP, kI, kD;
@@ -25,13 +25,13 @@ public class ArmSetPositionCommand extends CommandBase{
     // Target angle for the command
     private double targetAngle = 0;
 
-    public ArmSetPositionCommand(ArmRotationSubsystem rotSubsystem, double newAngle)
+    public ClawSetPositionCommand(ClawSubsystem claw, double newAngle)
     {
-        armSubsystem = rotSubsystem;
+        clawSubsystem = claw;
         targetAngle = newAngle;
 
         // Add the subsystem as a requirement
-        addRequirements(rotSubsystem);
+        addRequirements(claw);
 
         // Get the control constants
         getControlConstants();
@@ -52,7 +52,7 @@ public class ArmSetPositionCommand extends CommandBase{
                          pidController.calculate(targetAngle));
 
         // Set the output
-        armSubsystem.setArmOutput(output);
+        clawSubsystem.setWristOutput(output);
     }
 
     // Execute override
@@ -60,10 +60,10 @@ public class ArmSetPositionCommand extends CommandBase{
     public void execute()
     {
         // Get the current angle of the Arm Subsystem
-        double currentAngle = armSubsystem.getArmAngle();
+        double currentAngle = clawSubsystem.getWristAngle();
 
         // Read the current arm angle and feedback
-        armSubsystem.setArmOutput(pidController.calculate(currentAngle));
+        clawSubsystem.setWristOutput(pidController.calculate(currentAngle));
     }
 
     // End override
@@ -71,7 +71,7 @@ public class ArmSetPositionCommand extends CommandBase{
     public void end(boolean interrupted)
     {
         // Set the arm output to no power
-        armSubsystem.setArmOutput(0);
+        clawSubsystem.setWristOutput(0);
     }
 
     // isfinished override
@@ -84,12 +84,12 @@ public class ArmSetPositionCommand extends CommandBase{
 
     private void getControlConstants()
     {
-        kP = armSubsystem.getPIDkP();
-        kI = armSubsystem.getPIDkI();
-        kD = armSubsystem.getPIDkD();
+        kP = clawSubsystem.getPIDkP();
+        kI = clawSubsystem.getPIDkI();
+        kD = clawSubsystem.getPIDkD();
 
-        kV = armSubsystem.getFFkV();
-        kG = armSubsystem.getFFkG();
+        kV = clawSubsystem.getFFkV();
+        kG = clawSubsystem.getFFkG();
     }
     
 }

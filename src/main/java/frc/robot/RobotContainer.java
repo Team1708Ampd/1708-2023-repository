@@ -19,6 +19,7 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import frc.robot.commands.DriveCommand;
 import frc.robot.subsystems.ArmRotationSubsystem;
+import frc.robot.subsystems.ClawSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.swervelib.ctre.CanCoderFactoryBuilder.Direction;
 import frc.robot.DriveConstants.*;
@@ -56,6 +57,7 @@ public class RobotContainer {
   private MotionControl m_MotionControl;
   private AutoRoutines m_AutoRoutine;
   private ArmRotationSubsystem  s_ArmRotation;
+  private ClawSubsystem s_Claw;
   
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -84,14 +86,14 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-    new JoystickButton(controller2, XboxController.Button.kA.value).whileTrue(new IntakeCommand());
-    new JoystickButton(controller2, XboxController.Button.kB.value).whileTrue(new OuttakeCommand());
+    new JoystickButton(controller2, XboxController.Button.kA.value).whileTrue(new IntakeCommand(s_Claw));
+    new JoystickButton(controller2, XboxController.Button.kB.value).whileTrue(new OuttakeCommand(s_Claw));
 
-    new JoystickButton(controller2, XboxController.Button.kX.value).whileTrue(new ManualWristUp());
-    new JoystickButton(controller2, XboxController.Button.kY.value).whileTrue(new ManualWristDown());
+    new JoystickButton(controller2, XboxController.Button.kX.value).whileTrue(new ManualWristUp(s_Claw));
+    new JoystickButton(controller2, XboxController.Button.kY.value).whileTrue(new ManualWristDown(s_Claw));
 
-    new JoystickButton(controller2, XboxController.Button.kLeftBumper.value).whileTrue(new ManualArmUp());
-    new JoystickButton(controller2, XboxController.Button.kRightBumper.value).whileTrue(new ManualArmDown());
+    new JoystickButton(controller2, XboxController.Button.kLeftBumper.value).whileTrue(new ManualArmUp(s_ArmRotation));
+    new JoystickButton(controller2, XboxController.Button.kRightBumper.value).whileTrue(new ManualArmDown(s_ArmRotation));
 
     new JoystickButton(controller2, XboxController.Button.kBack.value).whileTrue(new ManualArmIn());
     new JoystickButton(controller2, XboxController.Button.kStart.value).whileTrue(new ManualArmOut());
@@ -162,7 +164,8 @@ public class RobotContainer {
 
   private void initRobotArm()
   {
-    
+    /******** CREATE ARM **********/
+
     //Create the config for the motors. Each are equally matched here. Defaults taken from documentation
     TalonFXConfiguration armConfig = new TalonFXConfiguration();
     armConfig.supplyCurrLimit.enable = true;
@@ -180,5 +183,18 @@ public class RobotContainer {
     s_ArmRotation = new ArmRotationSubsystem(8, 9, 10)
                           .withTalonConfig(armConfig)
                           .withEncoderConfiguration(cancoderConfig);
+
+    /******** CREATE WRIST **********/
+
+    // Build the Wrist CANCoder config
+    CANCoderConfiguration wristCancoderConfig = new CANCoderConfiguration();
+    wristCancoderConfig.absoluteSensorRange = AbsoluteSensorRange.Unsigned_0_to_360;
+    wristCancoderConfig.magnetOffsetDegrees = Math.toDegrees(ArmConstants.WRIST_ROTATION_OFFSET);
+    wristCancoderConfig.sensorDirection = Direction.CLOCKWISE == ArmConstants.WRIST_DIRECTION;
+    wristCancoderConfig.initializationStrategy = SensorInitializationStrategy.BootToAbsolutePosition;
+
+    s_Claw = new ClawSubsystem(12, 11, 0)
+                    .withTalonConfig(armConfig)
+                    .withEncoderConfiguration(cancoderConfig);
   }
 }

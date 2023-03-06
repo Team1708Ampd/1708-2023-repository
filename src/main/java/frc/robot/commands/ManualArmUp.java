@@ -6,11 +6,17 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Robot;
+import frc.robot.subsystems.ArmRotationSubsystem;
 
 public class ManualArmUp extends CommandBase {
-  /** Creates a new ArmUp. */
-  public ManualArmUp() {
-    addRequirements(Robot.armSub);
+  // Create Rotation Arm subsystem reference 
+  ArmRotationSubsystem armSub;
+
+  /** Creates a new ManualArmDown. */
+  public ManualArmUp(ArmRotationSubsystem arm) {
+    armSub = arm;
+
+    addRequirements(arm);
     // Use addRequirements() here to declare subsystem dependencies.
   }
 
@@ -21,13 +27,13 @@ public class ManualArmUp extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    Robot.armSub.setArmOutput(0.2);
+    armSub.setArmOutput(0.2);
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    Robot.armSub.setArmOutput(0);
+    armSub.setArmOutput(0);
   }
 
   // Returns true when the command should end.

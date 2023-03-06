@@ -37,6 +37,10 @@ public class ArmRotationSubsystem extends SubsystemBase {
   // Current position of the arm in degrees
   private Rotation2d armPositionCurrent;
 
+  // Define rotation limits for the rotation of the arm
+  private final double ROTATION_LIMIT_START = 0.0;
+  private final double ROTATION_LIMIT_END = 270.0;
+
 
   // Constructor just taking motor and encoder IDS
   public ArmRotationSubsystem(int talonDeviceNum1, int talonDeviceNum2, int encoderNum)
@@ -46,7 +50,7 @@ public class ArmRotationSubsystem extends SubsystemBase {
     armMotor1 = new TalonFX(talonDeviceNum1);
     armMotor2 = new TalonFX(talonDeviceNum2);
 
-    armEncoder = new CANCoder(4);
+    armEncoder = new CANCoder(encoderNum);
 
     setMotorNeutralMode(NeutralMode.Brake);  
 

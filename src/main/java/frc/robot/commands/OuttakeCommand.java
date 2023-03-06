@@ -6,12 +6,18 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Robot;
+import frc.robot.subsystems.ClawSubsystem;
 
 public class OuttakeCommand extends CommandBase {
-  /** Creates a new OuttakeCommand. */
-  public OuttakeCommand() {
+  // Reference to the clab subsystem
+  ClawSubsystem clawSub;
+
+  /** Creates a new IntakeCommand. */
+  public OuttakeCommand(ClawSubsystem claw) {
+    clawSub = claw;
+
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(Robot.clawSub);
+    addRequirements(claw);
   }
 
   // Called when the command is initially scheduled.
@@ -21,13 +27,13 @@ public class OuttakeCommand extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    Robot.clawSub.setIntake(-0.5);
+    clawSub.setIntakeOutput(-0.5);
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    Robot.clawSub.setIntake(0);
+    clawSub.setIntakeOutput(0);
   }
 
   // Returns true when the command should end.
