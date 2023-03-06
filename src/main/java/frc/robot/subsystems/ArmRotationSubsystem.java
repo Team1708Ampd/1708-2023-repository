@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
@@ -86,6 +87,9 @@ public class ArmRotationSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {    
+
+    SmartDashboard.putNumber("Arm Current Angle", Rotation2d.fromRadians(getArmAngle()).getDegrees());
+
     // Update the motor outputs to the current desired output value
     armMotor1.set(TalonFXControlMode.PercentOutput, armOutRequested);
     armMotor2.set(TalonFXControlMode.PercentOutput, armOutRequested);
