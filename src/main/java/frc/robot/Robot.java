@@ -5,6 +5,7 @@
 package frc.robot;
 
 import com.ctre.phoenix.sensors.Pigeon2;
+import com.pathplanner.lib.server.PathPlannerServer;
 
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.networktables.NetworkTable;
@@ -49,6 +50,8 @@ public class Robot extends TimedRobot {
 
     limelight_one = NetworkTableInstance.getDefault().getTable("limelight-one");
     limelight_two = NetworkTableInstance.getDefault().getTable("limelight-two");
+
+    PathPlannerServer.startServer(5811);
   }
 
   /**

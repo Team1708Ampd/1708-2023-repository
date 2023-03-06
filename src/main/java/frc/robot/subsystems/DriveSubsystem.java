@@ -144,10 +144,16 @@ public class DriveSubsystem extends SubsystemBase {
     return m_Odometry.getPoseMeters();
   }
 
-  // Set the current Pose of the robot
-  public void setCurrentPose(Pose2d currentPose)
+  // rReset the Pose of the robot
+  public void resetPose(Pose2d currentPose)
   {
-    //m_Odometry.se
+    m_Odometry.resetPosition(getGyroscopeRotation(), 
+                             new SwerveModulePosition[]{
+                              m_frontLeftModule.getPosition(), 
+                              m_frontRightModule.getPosition(), 
+                              m_backLeftModule.getPosition(), 
+                              m_backRightModule.getPosition()}, 
+                              currentPose);
   }
 
   @Override

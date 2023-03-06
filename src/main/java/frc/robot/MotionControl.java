@@ -2,6 +2,8 @@ package frc.robot;
 
 import java.util.List;
 
+import com.pathplanner.lib.auto.PIDConstants;
+
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -16,39 +18,31 @@ import frc.robot.DriveConstants.*;
 
 public class MotionControl {
 
-    private PIDController pid_xController;
+    private PIDConstants pid_TranslationConst;
 
-    private PIDController pid_yController;
-
-    private ProfiledPIDController pid_ThetaController;
+    private PIDConstants pid_AngleConst;
 
     private DriveSubsystem m_drive;
 
     // Trajectory Configuration - All Generated Trajectories will be based on this configuration
     private TrajectoryConfig m_TrajectoryConfig;
 
-
+    // Empty Constructor
     public MotionControl()
     {
 
     }
 
 
-    public MotionControl withSwerveXController(PIDController xControl)
+    public MotionControl withTranslationPIDConstants(PIDConstants transConsts)
     {
-        this.pid_xController = xControl;
+        this.pid_TranslationConst = transConsts;
         return this;
     }
 
-    public MotionControl withSwerveYController(PIDController yControl)
+    public MotionControl withAngularPIDConstants(PIDConstants angleConsts)
     {
-        this.pid_yController = yControl;
-        return this;
-    }
-
-    public MotionControl withThetaController(ProfiledPIDController thetaControl)
-    {
-        this.pid_ThetaController = thetaControl;
+        this.pid_AngleConst = angleConsts;
         return this;
     }
 
@@ -64,34 +58,20 @@ public class MotionControl {
         return this;
     }
 
-    public Trajectory getNextTrajectory(AutoTrajectory aTrajectory)
+    // Get the PID Constants
+    public PIDConstants getPIDTranslationConstants()
     {
-
-        return TrajectoryGenerator.generateTrajectory(
-                aTrajectory.getStartPose(), 
-                aTrajectory.getTranslationsList(), 
-                aTrajectory.getEndPose(), 
-                m_TrajectoryConfig
-        );
+        return pid_TranslationConst;
+    }
+    
+    // Get the PID Constants
+    public PIDConstants getPIDAngularConstants()
+    {
+        return pid_AngleConst;
     }
 
     public DriveSubsystem getSwerveSubsystem()
     {
         return this.m_drive;
     }
-
-    public SwerveControllerCommand getNewSwerveCmd(AutoTrajectory aTrajectory)
-    {
-
-
-        return new SwerveControllerCommand(getNextTrajectory(aTrajectory), 
-                m_drive::getCurrentPose2d, 
-                DriveConstants.kRobotKinematics, 
-                pid_xController, 
-                pid_yController,
-                pid_ThetaController,
-                m_drive::drive, 
-                m_drive);
-    }
-
 }

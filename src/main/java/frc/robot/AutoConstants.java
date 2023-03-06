@@ -57,7 +57,6 @@ public final class AutoConstants {
     public static final double kAutoMaxRobotAngularAccelerationRadiansPerSecPerSec = DriveConstants.kMaxRobotAngularAccelerationRadianssPerSecPerSec;
 
     public static final double kPIDXController = 1.5;
-    public static final double kPIDYController = 1.5;
     public static final double kPIDThetaController = 3;
 
     // Trapezoidal Speed Controller Constraints

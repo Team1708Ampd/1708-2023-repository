@@ -8,6 +8,7 @@ import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoderConfiguration;
 import com.ctre.phoenix.sensors.SensorInitializationStrategy;
+import com.pathplanner.lib.auto.PIDConstants;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -58,6 +59,7 @@ public class RobotContainer {
   private AutoRoutines m_AutoRoutine;
   private ArmRotationSubsystem  s_ArmRotation;
   private ClawSubsystem s_Claw;
+  private AutoManager m_AutoManager;
   
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -105,27 +107,10 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
+                       
 
-    ProfiledPIDController thetaController = new ProfiledPIDController(
-        AutoConstants.kPIDThetaController, 0, 0, AutoConstants.kTrapezoidControllerConsts);
 
-    thetaController.enableContinuousInput(-Math.PI, Math.PI);
-
-    m_MotionControl = new MotionControl()
-      .withSwerveXController(new PIDController(AutoConstants.kPIDXController, 0, 0))
-      .withSwerveYController(new PIDController(AutoConstants.kPIDYController, 0, 0)) 
-      .withThetaController(thetaController)
-      .withSwerveSubsystem(driveSub)
-      .withTrajectoryConfig(
-        new TrajectoryConfig(
-          DriveConstants.kMaxRobotAccelerationMetersPerSecPerSec, 
-          DriveConstants.kMaxRobotAngularAccelerationRadianssPerSecPerSec
-        )
-      );                       
-
-    AutoTrajectory nextATrajectory = m_AutoRoutine.getNextAutoTrajectory();
-
-    return m_MotionControl.getNewSwerveCmd(nextATrajectory);
+    return m_AutoManager.generateAuto();
   }
 
   private static double deadband(double value, double deadband) {
@@ -152,15 +137,13 @@ public class RobotContainer {
 
   private void initAutoRoutines()
   {
-    m_AutoRoutine = new AutoRoutines();
+    m_MotionControl = new MotionControl()
+      .withTranslationPIDConstants(new PIDConstants(AutoConstants.kPIDXController, 0, 0))
+      .withAngularPIDConstants(new PIDConstants(AutoConstants.kPIDThetaController, 0, 0))
+      .withSwerveSubsystem(driveSub); 
 
-    AutoTrajectory nextTrajectory= new AutoTrajectory();
-
-    nextTrajectory.setStartPose(AutoConstants.odo_BluePositionStart6);
-    nextTrajectory.setEndPose(new Pose2d(4.5, 2.6, new Rotation2d(0)));
-
-    m_AutoRoutine.addAutoTrajectory(nextTrajectory);
   }
+
 
   private void initRobotArm()
   {
