@@ -58,7 +58,6 @@ public class RobotContainer {
   private final XboxController controller2 = new XboxController(1);
 
   private MotionControl m_MotionControl;
-  private AutoRoutines m_AutoRoutine;
   private ArmRotationSubsystem  s_ArmRotation;
   private ClawSubsystem s_Claw;
   private AutoManager m_AutoManager;
@@ -75,14 +74,16 @@ public class RobotContainer {
       () -> -modifyAxis(controller.getLeftX()) * DriveConstants.MAX_VELOCITY_METERS_PER_SECOND,
       () -> -modifyAxis(controller.getRightX()) * DriveConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND
     ));
-    // Configure the button bindings
-    configureButtonBindings();
+    
 
     // Initialize the robot arm. This takes care of rotation and telescoping subsystems
     initRobotArm();
 
     // Initialize the AutoRoutines that control robotic movement
     initAutoRoutines();
+
+    // Configure the button bindings
+    configureButtonBindings();
   }
 
   /**
@@ -92,11 +93,11 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-    new JoystickButton(controller2, XboxController.Button.kA.value).whileTrue(new IntakeCommand(s_Claw));
-    new JoystickButton(controller2, XboxController.Button.kB.value).whileTrue(new OuttakeCommand(s_Claw));
+    // new JoystickButton(controller2, XboxController.Button.kA.value).whileTrue(new IntakeCommand(s_Claw));
+    // new JoystickButton(controller2, XboxController.Button.kB.value).whileTrue(new OuttakeCommand(s_Claw));
 
-    new JoystickButton(controller2, XboxController.Button.kX.value).whileTrue(new ManualWristUp(s_Claw));
-    new JoystickButton(controller2, XboxController.Button.kY.value).whileTrue(new ManualWristDown(s_Claw));
+    // new JoystickButton(controller2, XboxController.Button.kX.value).whileTrue(new ManualWristUp(s_Claw));
+    // new JoystickButton(controller2, XboxController.Button.kY.value).whileTrue(new ManualWristDown(s_Claw));
 
     new JoystickButton(controller2, XboxController.Button.kLeftBumper.value).whileTrue(new ManualArmUp(s_ArmRotation));
     new JoystickButton(controller2, XboxController.Button.kRightBumper.value).whileTrue(new ManualArmDown(s_ArmRotation));
@@ -112,12 +113,9 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
                        
-    return new ArmSetPositionCommand(s_ArmRotation, SmartDashboard.getNumber("Arm Setpoint", 0))
-                  .withControlConstants(SmartDashboard.getNumber("Arm kP", 0),
-                                        SmartDashboard.getNumber("Arm kI", 0), 
-                                        SmartDashboard.getNumber("Arm kD", 0), 
-                                        SmartDashboard.getNumber("Arm kV", 0), 
-                                        SmartDashboard.getNumber("Arm kG", 0));
+    return new ArmSetPositionCommand(s_ArmRotation, Math.toRadians(120),
+                                     1.2, 0, 0, 1, 0 
+                                      );
 
     //return m_AutoManager.generateAuto();
   }
@@ -171,23 +169,24 @@ public class RobotContainer {
     cancoderConfig.magnetOffsetDegrees = Math.toDegrees(ArmConstants.ARM_ROTATION_OFFSET);
     cancoderConfig.sensorDirection = Direction.CLOCKWISE == ArmConstants.ARM_DIRECTION;
     cancoderConfig.initializationStrategy = SensorInitializationStrategy.BootToAbsolutePosition;
+    
 
-    s_ArmRotation = new ArmRotationSubsystem(8, 9, 10)
+    s_ArmRotation = new ArmRotationSubsystem(8, 9, 4)
                           .withTalonConfig(armConfig)
                           .withEncoderConfiguration(cancoderConfig);
 
     /******** CREATE WRIST **********/
 
     // Build the Wrist CANCoder config
-    CANCoderConfiguration wristCancoderConfig = new CANCoderConfiguration();
-    wristCancoderConfig.absoluteSensorRange = AbsoluteSensorRange.Unsigned_0_to_360;
-    wristCancoderConfig.magnetOffsetDegrees = Math.toDegrees(ArmConstants.WRIST_ROTATION_OFFSET);
-    wristCancoderConfig.sensorDirection = Direction.CLOCKWISE == ArmConstants.WRIST_DIRECTION;
-    wristCancoderConfig.initializationStrategy = SensorInitializationStrategy.BootToAbsolutePosition;
+    // CANCoderConfiguration wristCancoderConfig = new CANCoderConfiguration();
+    // wristCancoderConfig.absoluteSensorRange = AbsoluteSensorRange.Unsigned_0_to_360;
+    // wristCancoderConfig.magnetOffsetDegrees = Math.toDegrees(ArmConstants.WRIST_ROTATION_OFFSET);
+    // wristCancoderConfig.sensorDirection = Direction.CLOCKWISE == ArmConstants.WRIST_DIRECTION;
+    // wristCancoderConfig.initializationStrategy = SensorInitializationStrategy.BootToAbsolutePosition;
 
-    s_Claw = new ClawSubsystem(12, 11, 0)
-                    .withTalonConfig(armConfig)
-                    .withEncoderConfiguration(cancoderConfig);
+    // s_Claw = new ClawSubsystem(12, 11, 0)
+    //                 .withTalonConfig(armConfig)
+    //                 .withEncoderConfiguration(cancoderConfig);
   }
 
   private void ARMPIDDebug()
@@ -197,6 +196,6 @@ public class RobotContainer {
     SmartDashboard.putNumber("ARM kD", 0.0);
     SmartDashboard.putNumber("ARM kV", 0.0);
     SmartDashboard.putNumber("ARM kG", 0.0);
-    SmartDashboard.putNumber("Arm Setpoint", 0.0);
+    SmartDashboard.putNumber("ARM Setpoint", 0.0);
   }
 }

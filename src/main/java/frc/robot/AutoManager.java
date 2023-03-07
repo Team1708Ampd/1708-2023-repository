@@ -28,23 +28,23 @@ public class AutoManager  {
     TeamColor matchColor;
 
     // Start position specifying the starting position of the robot
-    StartPosition matchPosition;
+    AutoRoutine routine;
 
     // Event map used by the path planner
     HashMap<String, Command> autoEventMap;
 
     // Specify Team and position
-    public AutoManager(TeamColor color, StartPosition position)
+    public AutoManager(TeamColor color, AutoRoutine autoRoutine)
     {
         matchColor = color;
-        matchPosition = position;        
+        routine = autoRoutine;        
     }
 
     // Specify Team and position and MotionControl
-    public AutoManager(TeamColor color, StartPosition position, MotionControl motion)
+    public AutoManager(TeamColor color, AutoRoutine autoRoutine, MotionControl motion)
     {
         matchColor = color;
-        matchPosition = position;        
+        routine = autoRoutine;         
         mController = motion;
     }
 
@@ -63,9 +63,9 @@ public class AutoManager  {
     }
 
     // Allow passing in of Start Potion
-    public AutoManager withStartPosition(StartPosition position)
+    public AutoManager withStartPosition(AutoRoutine autoRoutine)
     {
-        matchPosition = position;
+        routine = autoRoutine; ;
         return this;
     }
 
@@ -80,7 +80,7 @@ public class AutoManager  {
     {
 
         // Load the correct auto
-        List<PathPlannerTrajectory> autoPath = PathPlanner.loadPathGroup(matchPosition.toString(), new PathConstraints(4, 3));
+        List<PathPlannerTrajectory> autoPath = PathPlanner.loadPathGroup(routine.toString(), new PathConstraints(4, 3));
 
         // Generate the Auto Command and return
         autoBuilder = new SwerveAutoBuilder(mController.getSwerveSubsystem()::getCurrentPose2d, 
@@ -103,27 +103,48 @@ public class AutoManager  {
         BLUE
     }
 
-    public enum StartPosition
+    public enum AutoRoutine
     {
-        POSITION1{
+        BLUE1PARK{
             @Override
             public String toString()
             {
-                return "Auto Position 1";
+                return "Blue 1 park";
             }
         },
-        POSITION2{
+        BLUE2PARK{
             @Override
             public String toString()
             {
-                return "Auto Position 2";
+                return "Blue 2 park";
             }
         },
-        POSITION3{
+        BLUE3PARK{
             @Override
             public String toString()
             {
-                return "Auto Position 3";
+                return "Blue 3 park";
+            }
+        },
+        CONE1BLUEPARK{
+            @Override
+            public String toString()
+            {
+                return "Cone 1 blue park";
+            }
+        },
+        CONE3BLUESCORE{
+            @Override
+            public String toString()
+            {
+                return "Cone 3 Blue score";
+            }
+        },
+        CONE3BLUEPARK{
+            @Override
+            public String toString()
+            {
+                return "Blue 3 park";
             }
         }
     }    

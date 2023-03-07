@@ -2,6 +2,7 @@ package frc.robot.commands;
 
 import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.ArmRotationSubsystem;
 
@@ -27,24 +28,31 @@ public class ArmSetPositionCommand extends CommandBase{
 
     boolean useSuppliedConstants = false;
 
-    public ArmSetPositionCommand(ArmRotationSubsystem rotSubsystem, double newAngle)
+    public ArmSetPositionCommand(ArmRotationSubsystem rotSubsystem, double newAngle, 
+                                 double newkP, double newkI, double newkD, double newffV, double newffG)
     {
         armSubsystem = rotSubsystem;
         targetAngle = newAngle;
+
+        kP = newkP;
+        kI = newkI;
+        kD = newkD;
+        kV = newffV;
+        kG = newffG;
 
         // Add the subsystem as a requirement
         addRequirements(rotSubsystem);
 
         // Get the control constants
-        if (!useSuppliedConstants){
+        //if (!useSuppliedConstants){
             // Get the control constants
-            getControlConstants();
-        }
+            //getControlConstants();
+        //}
 
         // Init the controllers. PID gets a tolerance
         pidController = new PIDController(kP, kI, kD);
         pidController.disableContinuousInput();
-        pidController.setTolerance(0.5 * Math.PI);
+        pidController.setTolerance(Math.toRadians(0.5));
 
 
         ffController = new ArmFeedforward(0, kG, kV);
@@ -56,6 +64,8 @@ public class ArmSetPositionCommand extends CommandBase{
         double output = (ffController.calculate(targetAngle, 1, 1) +
                          pidController.calculate(targetAngle));
 
+        System.out.printf("FF kV %f \n", kV);
+        System.out.printf("FF Output %f \n", output);
         // Set the output
         armSubsystem.setArmOutput(output);
     }
@@ -69,6 +79,8 @@ public class ArmSetPositionCommand extends CommandBase{
 
         // Read the current arm angle and feedback
         armSubsystem.setArmOutput(pidController.calculate(currentAngle));
+
+        System.out.println(pidController.calculate(currentAngle));
     }
 
     // End override

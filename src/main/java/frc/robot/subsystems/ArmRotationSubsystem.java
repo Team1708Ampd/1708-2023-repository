@@ -154,10 +154,10 @@ public class ArmRotationSubsystem extends SubsystemBase {
 
     CtreUtils.checkCtreError(code, "Failed to retrieve CANcoder "+armEncoder.getDeviceID()+" absolute position after "+ATTEMPTS+" tries");
 
-    angle %= 2.0 * Math.PI;
-    if (angle < 0.0) {
-        angle += 2.0 * Math.PI;
-    }
+    // angle %= 2.0 * Math.PI;
+    // if (angle < 0.0) {
+    //     angle += 2.0 * Math.PI;
+    // }
 
     return angle;
   }
