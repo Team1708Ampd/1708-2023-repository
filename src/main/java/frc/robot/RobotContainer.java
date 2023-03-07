@@ -113,9 +113,12 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
                        
-    return new ArmSetPositionCommand(s_ArmRotation, Math.toRadians(120),
-                                     1.2, 0, 0, 1, 0 
-                                      );
+    return new ArmSetPositionCommand(s_ArmRotation, Math.toRadians(SmartDashboard.getNumber("ARM Setpoint", 0)), 
+                                      SmartDashboard.getNumber("ARM kP", 0.5),
+                                      SmartDashboard.getNumber("ARM kI", 0), 
+                                      SmartDashboard.getNumber("ARM kD", 0), 
+                                      SmartDashboard.getNumber("ARM kV", 0), 
+                                      SmartDashboard.getNumber("ARM kG", 0));
 
     //return m_AutoManager.generateAuto();
   }

@@ -132,8 +132,17 @@ public class ArmRotationSubsystem extends SubsystemBase {
 
   // Sets the Arm motor outputs
   public void setArmOutput(double power) {
+
+    if (power > 1)
+    {
+      armOutRequested = 1;
+    }
+    else
+    {
+      armOutRequested = power;
+    }
     // Set the requested output power of the motor
-    armOutRequested = power;
+    ;
   }
 
   // Get the current position of the encoder attached to the arm 
