@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.commands.ArmSetPositionCommand;
 import frc.robot.commands.DriveCommand;
 import frc.robot.subsystems.ArmRotationSubsystem;
+import frc.robot.subsystems.ArmTelescopingSubsystem;
 import frc.robot.subsystems.ClawSubsystem;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.swervelib.ctre.CanCoderFactoryBuilder.Direction;
@@ -59,6 +60,7 @@ public class RobotContainer {
 
   private MotionControl m_MotionControl;
   private ArmRotationSubsystem  s_ArmRotation;
+  private ArmTelescopingSubsystem s_ArmTele;
   private ClawSubsystem s_Claw;
   private AutoManager m_AutoManager;
   
@@ -177,6 +179,9 @@ public class RobotContainer {
     s_ArmRotation = new ArmRotationSubsystem(8, 9, 4)
                           .withTalonConfig(armConfig)
                           .withEncoderConfiguration(cancoderConfig);
+
+    s_ArmTele = new ArmTelescopingSubsystem(10)
+                      .withTalonConfig(armConfig);
 
     /******** CREATE WRIST **********/
 
