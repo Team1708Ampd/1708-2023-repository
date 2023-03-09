@@ -129,6 +129,16 @@ public class DriveSubsystem extends SubsystemBase {
     return Rotation2d.fromDegrees(m_pigeon.getYaw());
   }
 
+  public double getRoll()
+  {
+    return m_pigeon.getRoll();
+  }
+
+  public double getPitch()
+  {
+    return m_pigeon.getPitch();
+  }
+
   public void drive(ChassisSpeeds chassisSpeeds) {
     m_chassisSpeeds = chassisSpeeds;
   }
@@ -136,6 +146,14 @@ public class DriveSubsystem extends SubsystemBase {
   public void drive(SwerveModuleState[] nextStates)
   {
     m_chassisSpeeds = kRobotKinematics.toChassisSpeeds(nextStates);
+  }
+
+  public void stopBrake()
+  {
+    m_frontLeftModule.getDriveMotor().stopMotor();
+    m_frontRightModule.getDriveMotor().stopMotor();
+    m_backLeftModule.getDriveMotor().stopMotor();
+    m_backRightModule.getDriveMotor().stopMotor();
   }
 
   // Gets the current pose from the Odometry Subsystem
