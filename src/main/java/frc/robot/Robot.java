@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.ctre.phoenix.sensors.Pigeon2;
 
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
@@ -11,6 +12,8 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.commands.DriveCommand;
@@ -25,10 +28,6 @@ import frc.robot.subsystems.ClawSub;
  * project.
  */
 public class Robot extends TimedRobot {
-
-  public final double LIMELIGHT_ONE_HEIGHT = 0; 
-  public final double LIMELIGHT_TWO_HEIGHT = 0;
-
   private Command m_autonomousCommand;
 
   private RobotContainer m_robotContainer;
@@ -36,24 +35,27 @@ public class Robot extends TimedRobot {
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
    */
-  Pigeon2 gyro;
   public static ArmSubsystem armSub;
   public static ClawSub clawSub;
 
-  NetworkTable limelight_one;
-  NetworkTable limelight_two;
+  WPI_TalonFX elevatorMotor;
+  WPI_TalonFX elevatorMotor2;
+  XboxController controller;
+  MotorControllerGroup elevatorMotors;
 
   @Override
   public void robotInit() {
-    gyro = new Pigeon2(5, "Hannibal the CANibal");
     armSub = new ArmSubsystem(8, 9, 10);
     clawSub = new ClawSub(12, 11);
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();
 
-    limelight_one = NetworkTableInstance.getDefault().getTable("limelight-one");
-    limelight_two = NetworkTableInstance.getDefault().getTable("limelight-two");
+    elevatorMotor = new WPI_TalonFX(8);
+    elevatorMotor2 = new WPI_TalonFX(9);
+    elevatorMotors = new MotorControllerGroup(elevatorMotor, elevatorMotor2);
+
+    controller = new XboxController(1);
   }
 
   /**
@@ -110,6 +112,7 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
+    elevatorMotors.set( (controller.getLeftTriggerAxis() / 2.5) - (controller.getRightTriggerAxis() / 2.5));
   }
 
   @Override

@@ -23,6 +23,7 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
 import frc.robot.commands.DriveCommand;
 import frc.robot.commands.IntakeCommand;
+import frc.robot.commands.InvertIntake;
 import frc.robot.commands.ManualArmDown;
 import frc.robot.commands.ManualArmIn;
 import frc.robot.commands.ManualArmOut;
@@ -74,14 +75,16 @@ public class RobotContainer {
     new JoystickButton(controller2, XboxController.Button.kA.value).whileTrue(new IntakeCommand());
     new JoystickButton(controller2, XboxController.Button.kB.value).whileTrue(new OuttakeCommand());
 
-    new JoystickButton(controller2, XboxController.Button.kX.value).whileTrue(new ManualWristUp());
-    new JoystickButton(controller2, XboxController.Button.kY.value).whileTrue(new ManualWristDown());
+    new JoystickButton(controller2, XboxController.Button.kLeftBumper.value).whileTrue(new ManualWristUp());
+    new JoystickButton(controller2, XboxController.Button.kRightBumper.value).whileTrue(new ManualWristDown());
 
-    new JoystickButton(controller2, XboxController.Button.kLeftBumper.value).whileTrue(new ManualArmUp());
-    new JoystickButton(controller2, XboxController.Button.kRightBumper.value).whileTrue(new ManualArmDown());
+    // new JoystickButton(controller2, XboxController.Button.kLeftBumper.value).whileTrue(new ManualArmUp());
+    // new JoystickButton(controller2, XboxController.Button.kRightBumper.value).whileTrue(new ManualArmDown());
 
     new JoystickButton(controller2, XboxController.Button.kBack.value).whileTrue(new ManualArmIn());
     new JoystickButton(controller2, XboxController.Button.kStart.value).whileTrue(new ManualArmOut());
+
+    new JoystickButton(controller2, XboxController.Button.kRightStick.value).onTrue(new InvertIntake());
   }
 
   /**

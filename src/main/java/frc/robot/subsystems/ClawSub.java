@@ -31,6 +31,14 @@ public class ClawSub extends SubsystemBase {
     wristMotor.set(power);
   }
 
+  public void invertIntake() {
+    if(intakeMotor.getInverted()) {
+      intakeMotor.setInverted(false);
+    } else {
+      intakeMotor.setInverted(true);
+    }
+  }
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
