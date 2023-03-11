@@ -2,13 +2,13 @@
   "waypoints": [
     {
       "anchorPoint": {
-        "x": 1.996911699205836,
-        "y": 2.7534590479945824
+        "x": 1.9453736779813997,
+        "y": 2.728938223833895
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.996911699205836,
-        "y": 2.7534590479945824
+        "x": 2.945373677981398,
+        "y": 2.728938223833895
       },
       "holonomicAngle": 0,
       "isReversal": false,
@@ -16,7 +16,9 @@
       "isLocked": false,
       "isStopPoint": false,
       "stopEvent": {
-        "names": [],
+        "names": [
+          "outtake"
+        ],
         "executionBehavior": "parallel",
         "waitBehavior": "none",
         "waitTime": 0
@@ -24,19 +26,19 @@
     },
     {
       "anchorPoint": {
-        "x": 7.106423334659702,
-        "y": 2.163026592342137
+        "x": 6.31593880209037,
+        "y": 3.3756397300028653
       },
       "prevControl": {
-        "x": 8.094262250847448,
-        "y": 2.0665135947835624
+        "x": 6.31593880209037,
+        "y": 2.3756397300028653
       },
       "nextControl": {
-        "x": 6.111162192689168,
-        "y": 2.260264749890984
+        "x": 6.31593880209037,
+        "y": 2.3756397300028653
       },
       "holonomicAngle": 0,
-      "isReversal": false,
+      "isReversal": true,
       "velOverride": null,
       "isLocked": false,
       "isStopPoint": false,
@@ -49,12 +51,12 @@
     },
     {
       "anchorPoint": {
-        "x": 1.9742027586038187,
-        "y": 2.7477818128440785
+        "x": 5.5271050967633855,
+        "y": 2.7644712736234
       },
       "prevControl": {
-        "x": 2.477041376179071,
-        "y": 2.7392659601183214
+        "x": 6.315938802090369,
+        "y": 2.942136522570919
       },
       "nextControl": null,
       "holonomicAngle": 0,
@@ -63,12 +65,22 @@
       "isLocked": false,
       "isStopPoint": false,
       "stopEvent": {
-        "names": [],
+        "names": [
+          "balance"
+        ],
         "executionBehavior": "parallel",
         "waitBehavior": "none",
         "waitTime": 0
       }
     }
   ],
-  "markers": []
+  "markers": [
+    {
+      "position": 0.9454545454545449,
+      "names": [
+        "event",
+        "intake"
+      ]
+    }
+  ]
 }

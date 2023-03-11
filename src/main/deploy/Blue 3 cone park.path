@@ -2,13 +2,13 @@
   "waypoints": [
     {
       "anchorPoint": {
-        "x": 14.526569676368814,
-        "y": 2.872680986155174
+        "x": 1.9951199476867052,
+        "y": 2.4233539956441623
       },
       "prevControl": null,
       "nextControl": {
-        "x": 15.526569676368814,
-        "y": 2.872680986155174
+        "x": 2.995119947686703,
+        "y": 2.4233539956441623
       },
       "holonomicAngle": 0,
       "isReversal": false,
@@ -16,7 +16,9 @@
       "isLocked": false,
       "isStopPoint": false,
       "stopEvent": {
-        "names": [],
+        "names": [
+          "outtake"
+        ],
         "executionBehavior": "parallel",
         "waitBehavior": "none",
         "waitTime": 0
@@ -24,19 +26,19 @@
     },
     {
       "anchorPoint": {
-        "x": 9.45679868696848,
-        "y": 3.2927963872924915
+        "x": 6.344365241921974,
+        "y": 2.2670085765703454
       },
       "prevControl": {
-        "x": 8.45679868696848,
-        "y": 3.2927963872924915
+        "x": 6.344365241921974,
+        "y": 1.2670085765703454
       },
       "nextControl": {
-        "x": 10.45679868696848,
-        "y": 3.2927963872924915
+        "x": 6.344365241921974,
+        "y": 1.2670085765703454
       },
       "holonomicAngle": 0,
-      "isReversal": false,
+      "isReversal": true,
       "velOverride": null,
       "isLocked": false,
       "isStopPoint": false,
@@ -49,12 +51,12 @@
     },
     {
       "anchorPoint": {
-        "x": 12.607664195498362,
-        "y": 3.0827386867238324
+        "x": 5.548424926637088,
+        "y": 2.2527953566545436
       },
       "prevControl": {
-        "x": 11.903687036835828,
-        "y": 3.122479332777363
+        "x": 6.415431341500982,
+        "y": 2.22436891682294
       },
       "nextControl": null,
       "holonomicAngle": 0,
@@ -63,12 +65,22 @@
       "isLocked": false,
       "isStopPoint": false,
       "stopEvent": {
-        "names": [],
+        "names": [
+          "balance"
+        ],
         "executionBehavior": "parallel",
         "waitBehavior": "none",
         "waitTime": 0
       }
     }
   ],
-  "markers": []
+  "markers": [
+    {
+      "position": 0.954545454545453,
+      "names": [
+        "event",
+        "intake"
+      ]
+    }
+  ]
 }

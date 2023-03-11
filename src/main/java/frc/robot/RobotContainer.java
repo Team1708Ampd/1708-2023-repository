@@ -4,6 +4,8 @@
 
 package frc.robot;
 
+import java.util.HashMap;
+
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoderConfiguration;
@@ -28,6 +30,8 @@ import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.swervelib.ctre.CanCoderFactoryBuilder.Direction;
 import frc.robot.DriveConstants.*;
 import frc.robot.AutoConstants.*;
+import frc.robot.AutoManager.AutoRoutine;
+import frc.robot.AutoManager.TeamColor;
 import frc.robot.ArmConstants.*;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -43,6 +47,7 @@ import frc.robot.commands.ManualArmUp;
 import frc.robot.commands.ManualWristDown;
 import frc.robot.commands.ManualWristUp;
 import frc.robot.commands.OuttakeCommand;
+import frc.robot.commands.PlatformBalanceCommand;
 
 
 /**
@@ -104,8 +109,8 @@ public class RobotContainer {
     new JoystickButton(controller2, XboxController.Button.kLeftBumper.value).whileTrue(new ManualArmUp(s_ArmRotation));
     new JoystickButton(controller2, XboxController.Button.kRightBumper.value).whileTrue(new ManualArmDown(s_ArmRotation));
 
-    new JoystickButton(controller2, XboxController.Button.kBack.value).whileTrue(new ManualArmIn());
-    new JoystickButton(controller2, XboxController.Button.kStart.value).whileTrue(new ManualArmOut());
+    new JoystickButton(controller2, XboxController.Button.kBack.value).whileTrue(new ManualArmIn(s_ArmTele));
+    new JoystickButton(controller2, XboxController.Button.kStart.value).whileTrue(new ManualArmOut(s_ArmTele));
   }
 
   /**
@@ -115,14 +120,14 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
                        
-    return new ArmSetPositionCommand(s_ArmRotation, Math.toRadians(SmartDashboard.getNumber("ARM Setpoint", 0)), 
-                                      SmartDashboard.getNumber("ARM kP", 0.5),
-                                      SmartDashboard.getNumber("ARM kI", 0), 
-                                      SmartDashboard.getNumber("ARM kD", 0), 
-                                      SmartDashboard.getNumber("ARM kV", 0), 
-                                      SmartDashboard.getNumber("ARM kG", 0));
+    // return new ArmSetPositionCommand(s_ArmRotation, Math.toRadians(SmartDashboard.getNumber("ARM Setpoint", 0)), 
+    //                                   SmartDashboard.getNumber("ARM kP", 0.5),
+    //                                   SmartDashboard.getNumber("ARM kI", 0), 
+    //                                   SmartDashboard.getNumber("ARM kD", 0), 
+    //                                   SmartDashboard.getNumber("ARM kV", 0), 
+    //                                   SmartDashboard.getNumber("ARM kG", 0));
 
-    //return m_AutoManager.generateAuto();
+    return m_AutoManager.generateAuto();
   }
 
   private static double deadband(double value, double deadband) {
@@ -153,6 +158,13 @@ public class RobotContainer {
       .withTranslationPIDConstants(new PIDConstants(AutoConstants.kPIDXController, 0, 0))
       .withAngularPIDConstants(new PIDConstants(AutoConstants.kPIDThetaController, 0, 0))
       .withSwerveSubsystem(driveSub); 
+
+    HashMap<String, Command> eventsMap = new HashMap<>();
+    eventsMap.put("balance", new PlatformBalanceCommand(driveSub));
+
+    m_AutoManager = new AutoManager(TeamColor.BLUE, AutoRoutine.BLUE1PARK)
+                          .withMotionControl(m_MotionControl)
+                          .withEventMap(eventsMap);
 
   }
 

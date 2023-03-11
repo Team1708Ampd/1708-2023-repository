@@ -112,11 +112,25 @@ public class AutoManager  {
                 return "Blue 1 park";
             }
         },
+        BLUE1CONE{
+            @Override
+            public String toString()
+            {
+                return "Blue 1 cone park";
+            }
+        },
         BLUE2PARK{
             @Override
             public String toString()
             {
                 return "Blue 2 park";
+            }
+        },
+        BLUE2CONE{
+            @Override
+            public String toString()
+            {
+                return "Blue 2 cone park";
             }
         },
         BLUE3PARK{
@@ -126,28 +140,29 @@ public class AutoManager  {
                 return "Blue 3 park";
             }
         },
-        CONE1BLUEPARK{
+        BLUE3CONE{
             @Override
             public String toString()
             {
-                return "Cone 1 blue park";
+                return "Blue 3 cone park";
             }
         },
-        CONE3BLUESCORE{
+        BLUE4PARK{
             @Override
             public String toString()
             {
-                return "Cone 3 Blue score";
+                return "Blue 4 park";
             }
         },
-        CONE3BLUEPARK{
+        BLUE4CONE{
             @Override
             public String toString()
             {
-                return "Blue 3 park";
+                return "Blue 4 cone park";
             }
-        }
-    }    
-}
+        },
+    }
+};
+
 
 

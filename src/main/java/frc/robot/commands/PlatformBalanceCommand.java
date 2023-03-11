@@ -23,7 +23,7 @@ public class PlatformBalanceCommand extends CommandBase{
     private boolean tilting;
     
     // Constructor for specifying the drive
-    PlatformBalanceCommand(DriveSubsystem drv)
+    public PlatformBalanceCommand(DriveSubsystem drv)
     {
         // Get the drive
         drive = drv;
