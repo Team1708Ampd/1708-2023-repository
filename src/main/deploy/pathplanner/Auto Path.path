@@ -2,13 +2,13 @@
   "waypoints": [
     {
       "anchorPoint": {
-        "x": 1.9666935078551018,
-        "y": 4.640616302509201
+        "x": 1.8861988601170188,
+        "y": 4.388995093779662
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.9666935078551027,
-        "y": 4.640616302509201
+        "x": 2.8861988601170303,
+        "y": 4.388995093779662
       },
       "holonomicAngle": 0,
       "isReversal": false,
@@ -26,24 +26,26 @@
     },
     {
       "anchorPoint": {
-        "x": 6.259085922427165,
-        "y": 4.583763422845995
+        "x": 2.4121581576496487,
+        "y": 3.3461447624649643
       },
       "prevControl": {
-        "x": 6.898680818638233,
-        "y": 4.647722912467102
+        "x": 1.4121581576496487,
+        "y": 3.3461447624649643
       },
       "nextControl": {
-        "x": 6.898680818638233,
-        "y": 4.647722912467102
+        "x": 3.4121581576496487,
+        "y": 3.3461447624649643
       },
       "holonomicAngle": 0,
-      "isReversal": true,
+      "isReversal": false,
       "velOverride": null,
       "isLocked": false,
       "isStopPoint": false,
       "stopEvent": {
-        "names": [],
+        "names": [
+          "balance"
+        ],
         "executionBehavior": "parallel",
         "waitBehavior": "none",
         "waitTime": 0
@@ -51,12 +53,12 @@
     },
     {
       "anchorPoint": {
-        "x": 5.896648814574226,
-        "y": 3.468025659455575
+        "x": 3.9356264677441644,
+        "y": 3.328008234963839
       },
       "prevControl": {
-        "x": 4.896648814574226,
-        "y": 3.468025659455575
+        "x": 3.7328360270755634,
+        "y": 3.33254236683912
       },
       "nextControl": null,
       "holonomicAngle": 0,
@@ -76,10 +78,21 @@
   ],
   "markers": [
     {
-      "position": 0.8363636363636363,
+      "position": 0.0,
       "names": [
-        "event",
-        "intake"
+        "event"
+      ]
+    },
+    {
+      "position": 0.0,
+      "names": [
+        "event"
+      ]
+    },
+    {
+      "position": 1.0181818181818183,
+      "names": [
+        "event"
       ]
     }
   ]

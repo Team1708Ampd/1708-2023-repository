@@ -4,6 +4,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.DriveConstants;
 import frc.robot.subsystems.DriveSubsystem;
@@ -15,7 +16,7 @@ public class PlatformBalanceCommand extends CommandBase{
     DriveSubsystem drive;
 
     // PID Controller for controller the robot
-    PIDController controller = new PIDController(-0.008, 0, 0);
+    PIDController controller = new PIDController(0.008, 0, 0);
 
     // Helper variables
     private double startTime;
@@ -41,23 +42,28 @@ public class PlatformBalanceCommand extends CommandBase{
         controller.reset();
         controller.setSetpoint(0); // ideally we shoot for 0 degrees roll
         controller.setTolerance(2.0); // 2 degrees tolerance puts us on the ramp
+        System.out.println("Initialized Balance");  
     }
 
 
     @Override
     public void execute()
     {
-        double speed = -1.5;
+        double speed = 1;
 
         if (!tilting && Math.abs(drive.getRoll()) > 10)
         {
             tilting = true;
-            startTime = Timer.getFPGATimestamp();            
+            startTime = Timer.getFPGATimestamp();    
+            System.out.println("At ramp pitch");       
         }
-        if (tilting && Timer.getFPGATimestamp() > startTime + 0.8)
+        if (tilting && Timer.getFPGATimestamp() > startTime + 2.4)
         {
-            speed = controller.calculate(drive.getRoll());
+            speed = controller.calculate(Math.abs(drive.getRoll()));
+            System.out.println("Balancing"); 
         }
+        System.out.printf("Robot Roll %f\n", drive.getRoll());
+        SmartDashboard.putNumber("Robot", speed);
 
         ChassisSpeeds cSpeeds = new ChassisSpeeds(speed, 0, 0);
         
@@ -76,12 +82,13 @@ public class PlatformBalanceCommand extends CommandBase{
             balanceCounter = 0;
         }
 
-        return (balanceCounter > 5);
+        return (balanceCounter > 2);
     }
 
     @Override
     public void end(boolean interrupted)
     {
+        System.out.println("Finished Balancing"); 
         drive.stopBrake();
     }    
 }

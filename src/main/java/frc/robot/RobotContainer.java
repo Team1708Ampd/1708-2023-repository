@@ -35,6 +35,7 @@ import frc.robot.AutoManager.TeamColor;
 import frc.robot.ArmConstants.*;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.Button;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
@@ -126,7 +127,7 @@ public class RobotContainer {
     //                                   SmartDashboard.getNumber("ARM kD", 0), 
     //                                   SmartDashboard.getNumber("ARM kV", 0), 
     //                                   SmartDashboard.getNumber("ARM kG", 0));
-
+  
     return m_AutoManager.generateAuto();
   }
 
@@ -161,8 +162,9 @@ public class RobotContainer {
 
     HashMap<String, Command> eventsMap = new HashMap<>();
     eventsMap.put("balance", new PlatformBalanceCommand(driveSub));
+    eventsMap.put("outtake", new OuttakeCommand(s_Claw));
 
-    m_AutoManager = new AutoManager(TeamColor.BLUE, AutoRoutine.BLUE1PARK)
+    m_AutoManager = new AutoManager(TeamColor.BLUE, AutoRoutine.NEWPATH)
                           .withMotionControl(m_MotionControl)
                           .withEventMap(eventsMap);
 
@@ -197,16 +199,8 @@ public class RobotContainer {
 
     /******** CREATE WRIST **********/
 
-    // Build the Wrist CANCoder config
-    // CANCoderConfiguration wristCancoderConfig = new CANCoderConfiguration();
-    // wristCancoderConfig.absoluteSensorRange = AbsoluteSensorRange.Unsigned_0_to_360;
-    // wristCancoderConfig.magnetOffsetDegrees = Math.toDegrees(ArmConstants.WRIST_ROTATION_OFFSET);
-    // wristCancoderConfig.sensorDirection = Direction.CLOCKWISE == ArmConstants.WRIST_DIRECTION;
-    // wristCancoderConfig.initializationStrategy = SensorInitializationStrategy.BootToAbsolutePosition;
-
-    // s_Claw = new ClawSubsystem(12, 11, 0)
-    //                 .withTalonConfig(armConfig)
-    //                 .withEncoderConfiguration(cancoderConfig);
+    s_Claw = new ClawSubsystem(12, 11)
+                    .withTalonConfig(armConfig);
   }
 
   private void ARMPIDDebug()

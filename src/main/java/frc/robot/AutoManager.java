@@ -161,6 +161,20 @@ public class AutoManager  {
                 return "Blue 4 cone park";
             }
         },
+        BLUESTRAIGHT{
+            @Override
+            public String toString()
+            {
+                return "Test";
+            }
+        },
+        NEWPATH{
+            @Override
+            public String toString()
+            {
+                return "Auto Path";
+            }
+        },
     }
 };
 

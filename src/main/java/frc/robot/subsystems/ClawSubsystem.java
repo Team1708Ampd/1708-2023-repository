@@ -48,12 +48,11 @@ public class ClawSubsystem extends SubsystemBase {
 
 
   // Constructor just taking motor and encoder IDS
-  public ClawSubsystem(int sparkDeviceNum, int talonDeviceNum, int encoderNum)
+  public ClawSubsystem(int sparkDeviceNum, int talonDeviceNum)
   {
     //Create the Two TalonFx Motors to drive the Arm
     wristMotor = new CANSparkMax(sparkDeviceNum, MotorType.kBrushless);
     intakeMotor = new TalonFX(talonDeviceNum);
-    wristEncoder = new CANCoder(encoderNum);
 
     setMotorNeutralMode(NeutralMode.Brake);  
 
@@ -63,7 +62,7 @@ public class ClawSubsystem extends SubsystemBase {
   }
 
   // Constructor taking device IDs and motor configuration
-  public ClawSubsystem(int sparkDeviceNum, int talonDeviceNum, int encoderNum, TalonFXConfiguration motorConfig) {
+  public ClawSubsystem(int sparkDeviceNum, int talonDeviceNum, TalonFXConfiguration motorConfig) {
       
     //Components / Notes:
     
@@ -71,7 +70,6 @@ public class ClawSubsystem extends SubsystemBase {
     //Create the Two TalonFx Motors to drive the wrist
     wristMotor = new CANSparkMax(sparkDeviceNum, MotorType.kBrushless);
     intakeMotor = new TalonFX(talonDeviceNum);
-    wristEncoder = new CANCoder(encoderNum);
 
     setMotorNeutralMode(NeutralMode.Brake);    
     
@@ -85,9 +83,6 @@ public class ClawSubsystem extends SubsystemBase {
     // Update the motor outputs to the current desired output value
     wristMotor.set(wristOutRequested);
     intakeMotor.set(TalonFXControlMode.PercentOutput, intakeOutRequested);
-
-    // Update the current position of the Arm
-    wristPositionCurrent = Rotation2d.fromRadians(getWristAngle());
   }
 
   // Allow user to pass in Talon configuration
@@ -97,30 +92,6 @@ public class ClawSubsystem extends SubsystemBase {
     useMotorConfig(motorConfig);
     return this;
   }  
-
-  // Allow user to pass in the Encoder configuration
-  public ClawSubsystem withEncoderConfiguration(CANCoderConfiguration cancoderConfig)
-  {
-    useEncoderConfig(cancoderConfig);
-    return this;
-  }
-
-  // Allow user to specify PID constants for use in PID controller
-  public ClawSubsystem withPIDConstants(double kP, double kI, double kD)
-  {
-    PIDkP = kP;
-    PIDkI = kI;
-    PIDkD = kD;
-    return this;
-  }
-
-  // Allow user to specify Feed Forward constants for use in FF controller
-  public ClawSubsystem withFeedForwardConstants(double kV, double kG)
-  {
-    FFkG = kG;
-    FFkV = kV;
-    return this;
-  }
 
   // Sets the Wrist motor outputs
   public void setWristOutput(double power) {
@@ -134,78 +105,9 @@ public class ClawSubsystem extends SubsystemBase {
     intakeOutRequested = power;
   }
 
-  // Get the current position of the encoder attached to the arm 
-  public double getWristAngle() {
-    int ATTEMPTS = 3;
-    double angle = Math.toRadians(wristEncoder.getAbsolutePosition());
-
-    ErrorCode code = wristEncoder.getLastError();
-
-    for (int i = 0; i < ATTEMPTS; i++) {
-        if (code == ErrorCode.OK) break;
-        try {
-            Thread.sleep(10);
-        } catch (InterruptedException e) { }
-        angle = Math.toRadians(wristEncoder.getAbsolutePosition());
-        code = wristEncoder.getLastError();
-    }    
-
-    CtreUtils.checkCtreError(code, "Failed to retrieve CANcoder "+wristEncoder.getDeviceID()+" absolute position after "+ATTEMPTS+" tries");
-
-    angle %= 2.0 * Math.PI;
-    if (angle < 0.0) {
-        angle += 2.0 * Math.PI;
-    }
-
-    return angle;
-  }
-
-  // Get the current Wrist Angle Reported internally to the Arm
-  public Rotation2d getWristAngleInternal()
-  {
-    return wristPositionCurrent;
-  }
-
-  // Get the PID Constants
-  public double getPIDkP()
-  {
-    return PIDkP;
-  }
-
-  // Get the PID Constants
-  public double getPIDkI()
-  {
-    return PIDkI;
-  }
-
-  // Get the PID Constants
-  public double getPIDkD()
-  {
-    return PIDkD;
-  }
-
-  // Get the FF Constants
-  public double getFFkG()
-  {
-    return FFkG;
-  }
-
-  // Get the FF Constants
-  public double getFFkV()
-  {
-    return FFkV;
-  }
-
   private void useMotorConfig(TalonFXConfiguration config)
   {
       CtreUtils.checkCtreError(intakeMotor.configAllSettings(config), "Failed to configure Falcon 500: intakeMotor");
-  }
-
-  private void useEncoderConfig(CANCoderConfiguration cancoderConfig)
-  {
-      // Init the Cancoder config
-      CtreUtils.checkCtreError(wristEncoder.configAllSettings(cancoderConfig, 250), "Failed to configure CANCoder");
-      CtreUtils.checkCtreError(wristEncoder.setStatusFramePeriod(CANCoderStatusFrame.SensorData, 10, 250), "Failed to configure CANCoder update rate");
   }
 
   // Sets the behavior for neutral position of the motors

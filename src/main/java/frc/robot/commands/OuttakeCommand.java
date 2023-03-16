@@ -4,6 +4,7 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Robot;
 import frc.robot.subsystems.ClawSubsystem;
@@ -11,6 +12,7 @@ import frc.robot.subsystems.ClawSubsystem;
 public class OuttakeCommand extends CommandBase {
   // Reference to the clab subsystem
   ClawSubsystem clawSub;
+  double time;
 
   /** Creates a new IntakeCommand. */
   public OuttakeCommand(ClawSubsystem claw) {
@@ -22,11 +24,14 @@ public class OuttakeCommand extends CommandBase {
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
+  public void initialize() {
+    time = Timer.getFPGATimestamp();
+  }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+     
     clawSub.setIntakeOutput(-0.5);
   }
 
@@ -39,6 +44,13 @@ public class OuttakeCommand extends CommandBase {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return false;
+    boolean rc = false;
+
+    if (Timer.getFPGATimestamp() > (time + 1))
+    {
+      rc = true;
+    }
+
+    return rc;
   }
 }
