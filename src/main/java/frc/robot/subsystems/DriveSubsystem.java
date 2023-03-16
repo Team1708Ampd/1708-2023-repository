@@ -122,7 +122,7 @@ public class DriveSubsystem extends SubsystemBase {
    * 'forwards' direction.
    */
   public void zeroGyroscope() {
-    m_pigeon.setYaw(0.0);
+    m_pigeon.setYaw(-180.0);
   }
 
   public Rotation2d getGyroscopeRotation() {
@@ -149,6 +149,36 @@ public class DriveSubsystem extends SubsystemBase {
   {
     //m_Odometry.se
   }
+  public void stopBrake()
+  {
+    m_frontLeftModule.getDriveMotor().stopMotor();
+    m_frontRightModule.getDriveMotor().stopMotor();
+    m_backLeftModule.getDriveMotor().stopMotor();
+    m_backRightModule.getDriveMotor().stopMotor();
+  }
+
+  // rReset the Pose of the robot
+  public void resetPose(Pose2d currentPose)
+  {
+    m_Odometry.resetPosition(getGyroscopeRotation(), 
+                             new SwerveModulePosition[]{
+                              m_frontLeftModule.getPosition(), 
+                              m_frontRightModule.getPosition(), 
+                              m_backLeftModule.getPosition(), 
+                              m_backRightModule.getPosition()}, 
+                              currentPose);
+  }
+
+  public double getRoll()
+  {
+    return m_pigeon.getRoll();
+  }
+
+  public double getPitch()
+  {
+    return m_pigeon.getPitch();
+  }
+
 
   @Override
   public void periodic() {

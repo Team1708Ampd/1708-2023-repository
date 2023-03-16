@@ -4,6 +4,10 @@
 
 package frc.robot;
 
+import java.util.HashMap;
+
+import com.pathplanner.lib.auto.PIDConstants;
+
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -12,14 +16,19 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import frc.robot.commands.DriveCommand;
 import frc.robot.subsystems.DriveSubsystem;
 import frc.robot.DriveConstants.*;
 import frc.robot.AutoConstants.*;
+import frc.robot.AutoManager.AutoRoutine;
+import frc.robot.AutoManager.TeamColor;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.button.Button;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import frc.robot.subsystems.CameraSub;
 
 import frc.robot.commands.DriveCommand;
 import frc.robot.commands.IntakeCommand;
@@ -31,6 +40,8 @@ import frc.robot.commands.ManualArmUp;
 import frc.robot.commands.ManualWristDown;
 import frc.robot.commands.ManualWristUp;
 import frc.robot.commands.OuttakeCommand;
+import frc.robot.commands.PlatformBalanceCommand;
+import frc.robot.commands.OuttakeAutoCommand;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -46,11 +57,17 @@ public class RobotContainer {
   private final XboxController controller2 = new XboxController(1);
 
   private MotionControl m_MotionControl;
-  private AutoRoutines m_AutoRoutine;
-  
+  private AutoManager m_AutoManager;
+  private CameraSub m_camSub;
+  private SendableChooser<Integer> autoChooser;
+  private SendableChooser<Integer> teamChooser;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
+
+
+    // Init the routines manager 
+    initCompetitionShuffleboard();
 
     driveSub.setDefaultCommand(new DriveCommand(
       driveSub,
@@ -93,27 +110,14 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-
-    ProfiledPIDController thetaController = new ProfiledPIDController(
-        AutoConstants.kPIDThetaController, 0, 0, AutoConstants.kTrapezoidControllerConsts);
-
-    thetaController.enableContinuousInput(-Math.PI, Math.PI);
-
-    m_MotionControl = new MotionControl()
-      .withSwerveXController(new PIDController(AutoConstants.kPIDXController, 0, 0))
-      .withSwerveYController(new PIDController(AutoConstants.kPIDYController, 0, 0)) 
-      .withThetaController(thetaController)
-      .withSwerveSubsystem(driveSub)
-      .withTrajectoryConfig(
-        new TrajectoryConfig(
-          DriveConstants.kMaxRobotAccelerationMetersPerSecPerSec, 
-          DriveConstants.kMaxRobotAngularAccelerationRadianssPerSecPerSec
-        )
-      );                       
-
-    AutoTrajectory nextATrajectory = m_AutoRoutine.getNextAutoTrajectory();
-
-    return m_MotionControl.getNewSwerveCmd(nextATrajectory);
+    if (getAutoSelecton() == AutoRoutine.BASIC)
+    {
+      return new OuttakeAutoCommand();
+    }
+    else
+    {
+      return m_AutoManager.generateAuto();
+    }    
   }
 
   private static double deadband(double value, double deadband) {
@@ -140,15 +144,88 @@ public class RobotContainer {
 
   private void initAutoRoutines()
   {
-    m_AutoRoutine = new AutoRoutines();
+    m_MotionControl = new MotionControl()
+      .withTranslationPIDConstants(new PIDConstants(AutoConstants.kPIDXController, 0, 0))
+      .withAngularPIDConstants(new PIDConstants(AutoConstants.kPIDThetaController, 0, 0))
+      .withSwerveSubsystem(driveSub); 
 
-    AutoTrajectory nextTrajectory= new AutoTrajectory();
+    AutoRoutine autoR = getAutoSelecton();
 
-    nextTrajectory.setStartPose(AutoConstants.odo_BluePositionStart6);
-    nextTrajectory.setEndPose(new Pose2d(4.5, 2.6, new Rotation2d(0)));
+    if (autoR != AutoRoutine.BASIC)
+    {
+      HashMap<String, Command> eventsMap = new HashMap<>();
+      eventsMap.put("balance", new PlatformBalanceCommand(driveSub));
+      eventsMap.put("outtake", new OuttakeAutoCommand());
 
+      m_AutoManager = new AutoManager(getTeamSelecton(), autoR)
+                            .withMotionControl(m_MotionControl)
+                            .withEventMap(eventsMap);
+    }
+  }
 
-    m_AutoRoutine.addAutoTrajectory(nextTrajectory);
+  private void initCompetitionShuffleboard()
+  {
+    autoChooser = new SendableChooser<Integer>();
+    autoChooser.setDefaultOption("Auto 1", 1);
+    autoChooser.addOption("Auto 2", 2);
+    autoChooser.addOption("Auto 3", 3);
+    autoChooser.addOption("Basic", 4);
 
+    teamChooser = new SendableChooser<Integer>();
+    teamChooser.setDefaultOption("BLUE", 1);
+    teamChooser.addOption("RED", 2);
+
+    Shuffleboard.getTab("SmartDashboard")
+      .add(autoChooser);
+
+    Shuffleboard.getTab("SmartDashboard")
+      .add(teamChooser);
+  }
+
+  private AutoRoutine getAutoSelecton()
+  {
+    AutoRoutine routine = AutoRoutine.BASIC;
+    
+    switch(autoChooser.getSelected())
+    {
+      case 1:
+        routine = AutoRoutine.BLUE1PARK;
+      break;
+
+      case 2:
+      routine = AutoRoutine.BLUE2PARK;
+      break;
+
+      case 3:
+      routine = AutoRoutine.BLUE3PARK;
+      break;
+      default:
+      routine = AutoRoutine.BASIC;
+      break;
+    }
+
+    return routine;
+  }
+
+  private TeamColor getTeamSelecton()
+  {
+    TeamColor team = TeamColor.BLUE;
+    
+    switch(teamChooser.getSelected())
+    {
+      case 1:
+        team = TeamColor.BLUE;
+      break;
+
+      case 2:
+        team = TeamColor.RED;
+      break;
+
+      default:
+        team = TeamColor.BLUE;
+      break;
+    }
+
+    return team;
   }
 }
