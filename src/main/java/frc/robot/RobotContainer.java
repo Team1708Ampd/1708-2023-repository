@@ -19,14 +19,17 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.commands.DriveCommand;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.IntakeSub;
 import frc.robot.DriveConstants.*;
 import frc.robot.AutoConstants.*;
 import frc.robot.AutoManager.AutoRoutine;
 import frc.robot.AutoManager.TeamColor;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.subsystems.CameraSub;
 
@@ -41,6 +44,7 @@ import frc.robot.commands.ManualWristDown;
 import frc.robot.commands.ManualWristUp;
 import frc.robot.commands.OuttakeCommand;
 import frc.robot.commands.PlatformBalanceCommand;
+import frc.robot.commands.TiltArmCommand;
 import frc.robot.commands.OuttakeAutoCommand;
 
 /**
@@ -59,6 +63,7 @@ public class RobotContainer {
   private MotionControl m_MotionControl;
   private AutoManager m_AutoManager;
   private CameraSub m_camSub;
+  private IntakeSub m_intake;
   private SendableChooser<Integer> autoChooser;
   private SendableChooser<Integer> teamChooser;
 
@@ -75,11 +80,12 @@ public class RobotContainer {
       () -> -modifyAxis(controller.getLeftX()) * DriveConstants.MAX_VELOCITY_METERS_PER_SECOND,
       () -> -modifyAxis(controller.getRightX()) * DriveConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND
     ));
+
+   
+
     // Configure the button bindings
     configureButtonBindings();
-
-    // Initialize the AutoRoutines that control robotic movement
-    initAutoRoutines();
+    
   }
 
   /**
@@ -110,14 +116,22 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
+
+    // Initialize the AutoRoutines that control robotic movement
+    initAutoRoutines();
+
     if (getAutoSelecton() == AutoRoutine.BASIC)
     {
-      return new OuttakeAutoCommand();
+      SequentialCommandGroup autoCMD = new SequentialCommandGroup(new TiltArmCommand(), 
+                                                                  new OuttakeAutoCommand());
+
+
+      return autoCMD;
     }
     else
     {
       return m_AutoManager.generateAuto();
-    }    
+    }  
   }
 
   private static double deadband(double value, double deadband) {
@@ -144,6 +158,7 @@ public class RobotContainer {
 
   private void initAutoRoutines()
   {
+    double autoSpeed = 4;
     m_MotionControl = new MotionControl()
       .withTranslationPIDConstants(new PIDConstants(AutoConstants.kPIDXController, 0, 0))
       .withAngularPIDConstants(new PIDConstants(AutoConstants.kPIDThetaController, 0, 0))
@@ -153,14 +168,26 @@ public class RobotContainer {
 
     if (autoR != AutoRoutine.BASIC)
     {
+
+      if ((autoR == AutoRoutine.BLUE1PARK) && (getTeamSelecton() == TeamColor.RED))
+      {
+        autoSpeed = 2;
+      }
+      if ((autoR == AutoRoutine.BLUE3PARK) && (getTeamSelecton() == TeamColor.BLUE))
+      {
+        autoSpeed = 2;
+      }
+
       HashMap<String, Command> eventsMap = new HashMap<>();
       eventsMap.put("balance", new PlatformBalanceCommand(driveSub));
       eventsMap.put("outtake", new OuttakeAutoCommand());
+      eventsMap.put("tiltArm", new TiltArmCommand());
 
       m_AutoManager = new AutoManager(getTeamSelecton(), autoR)
-                            .withMotionControl(m_MotionControl)
-                            .withEventMap(eventsMap);
-    }
+                              .withMotionControl(m_MotionControl)
+                              .withEventMap(eventsMap)
+                              .withMaxSpeed(autoSpeed);
+    }      
   }
 
   private void initCompetitionShuffleboard()
@@ -191,7 +218,7 @@ public class RobotContainer {
       case 1:
         routine = AutoRoutine.BLUE1PARK;
       break;
-
+    
       case 2:
       routine = AutoRoutine.BLUE2PARK;
       break;

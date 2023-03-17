@@ -13,17 +13,23 @@ import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-public class ClawSub extends SubsystemBase {
+public class IntakeSub extends SubsystemBase {
   /** Creates a new ClawSub. */
-  CANSparkMax wristMotor;
-  public ClawSub(Integer wristId) {
-    wristMotor = new CANSparkMax(wristId, MotorType.kBrushless);
-    wristMotor.setIdleMode(IdleMode.kBrake);
+  TalonFX intakeMotor;
+  public IntakeSub(Integer intakeId) {
+    intakeMotor = new TalonFX(intakeId);
   }
 
+  public void setIntake(double power) {
+    intakeMotor.set(ControlMode.PercentOutput, power);
+  }
 
-  public void setWrist(double power) {
-    wristMotor.set(power);
+  public void invertIntake() {
+    if(intakeMotor.getInverted()) {
+      intakeMotor.setInverted(false);
+    } else {
+      intakeMotor.setInverted(true);
+    }
   }
 
   @Override

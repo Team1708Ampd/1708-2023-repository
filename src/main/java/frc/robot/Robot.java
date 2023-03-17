@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import frc.robot.commands.DriveCommand;
 import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.IntakeSub;
 import frc.robot.subsystems.ArmSubsystem;
 import frc.robot.subsystems.ClawSub;
 
@@ -37,6 +38,7 @@ public class Robot extends TimedRobot {
    */
   public static ArmSubsystem armSub;
   public static ClawSub clawSub;
+  public static IntakeSub m_intake;
 
   WPI_TalonFX elevatorMotor;
   WPI_TalonFX elevatorMotor2;
@@ -46,7 +48,8 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
     armSub = new ArmSubsystem(8, 9, 10);
-    clawSub = new ClawSub(12, 11);
+    clawSub = new ClawSub(12);
+    m_intake = new IntakeSub(11);
     // Instantiate our RobotContainer.  This will perform all our button bindings, and put our
     // autonomous chooser on the dashboard.
     m_robotContainer = new RobotContainer();

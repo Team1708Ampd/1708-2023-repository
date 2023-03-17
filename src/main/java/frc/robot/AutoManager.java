@@ -33,6 +33,9 @@ public class AutoManager  {
     // Event map used by the path planner
     HashMap<String, Command> autoEventMap;
 
+    // Max speed limit
+    double maxSpeed = 4;
+
     // Specify Team and position
     public AutoManager(TeamColor color, AutoRoutine autoRoutine)
     {
@@ -65,7 +68,14 @@ public class AutoManager  {
     // Allow passing in of Start Potion
     public AutoManager withStartPosition(AutoRoutine autoRoutine)
     {
-        routine = autoRoutine; ;
+        routine = autoRoutine;
+        return this;
+    }
+
+    // Allow passing in of Max Speed
+    public AutoManager withMaxSpeed(double speed)
+    {
+        maxSpeed = speed ;
         return this;
     }
 
@@ -80,7 +90,7 @@ public class AutoManager  {
     {
 
         // Load the correct auto
-        List<PathPlannerTrajectory> autoPath = PathPlanner.loadPathGroup(routine.toString(), new PathConstraints(4, 3));
+        List<PathPlannerTrajectory> autoPath = PathPlanner.loadPathGroup(routine.toString(), new PathConstraints(maxSpeed, 3));
 
         // Generate the Auto Command and return
         autoBuilder = new SwerveAutoBuilder(mController.getSwerveSubsystem()::getCurrentPose2d, 
@@ -109,70 +119,21 @@ public class AutoManager  {
             @Override
             public String toString()
             {
-                return "PreCompetitionPath1";
-            }
-        },
-        BLUE1CONE{
-            @Override
-            public String toString()
-            {
-                return "Blue 1 cone park";
+                return "CompetitionPath1";
             }
         },
         BLUE2PARK{
             @Override
             public String toString()
             {
-                return "PreCompetitionPath2";
-            }
-        },
-        BLUE2CONE{
-            @Override
-            public String toString()
-            {
-                return "Blue 2 cone park";
+                return "CompetitionPath2";
             }
         },
         BLUE3PARK{
             @Override
             public String toString()
             {
-                return "PreCompetitionPath3";
-            }
-        },
-        BLUE3CONE{
-            @Override
-            public String toString()
-            {
-                return "Blue 3 cone park";
-            }
-        },
-        BLUE4PARK{
-            @Override
-            public String toString()
-            {
-                return "Blue 4 park";
-            }
-        },
-        BLUE4CONE{
-            @Override
-            public String toString()
-            {
-                return "Blue 4 cone park";
-            }
-        },
-        BLUESTRAIGHT{
-            @Override
-            public String toString()
-            {
-                return "Test";
-            }
-        },
-        NEWPATH{
-            @Override
-            public String toString()
-            {
-                return "Auto Path";
+                return "CompetitionPath3";
             }
         },
         BASIC{
