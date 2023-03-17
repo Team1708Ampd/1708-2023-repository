@@ -10,15 +10,41 @@
         "x": 2.93154017886983,
         "y": 4.425268148781912
       },
-      "holonomicAngle": -180.0,
+      "holonomicAngle": 0.0,
       "isReversal": false,
       "velOverride": null,
       "isLocked": false,
       "isStopPoint": false,
       "stopEvent": {
         "names": [
+          "tiltArm",
           "outtake"
         ],
+        "executionBehavior": "sequential",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
+    },
+    {
+      "anchorPoint": {
+        "x": 2.9290491914317163,
+        "y": 4.570360368790913
+      },
+      "prevControl": {
+        "x": 1.9290491914317163,
+        "y": 4.570360368790913
+      },
+      "nextControl": {
+        "x": 3.9290491914317163,
+        "y": 4.570360368790913
+      },
+      "holonomicAngle": 0.0,
+      "isReversal": false,
+      "velOverride": null,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [],
         "executionBehavior": "parallel",
         "waitBehavior": "none",
         "waitTime": 0
@@ -26,15 +52,15 @@
     },
     {
       "anchorPoint": {
-        "x": 6.302443306641,
-        "y": 4.534087313788663
+        "x": 6.365921152894939,
+        "y": 4.6157016875437265
       },
       "prevControl": {
-        "x": 5.302443306641,
-        "y": 4.534087313788663
+        "x": 4.875437259646451,
+        "y": 4.6157016875437265
       },
       "nextControl": null,
-      "holonomicAngle": 0.0,
+      "holonomicAngle": 0,
       "isReversal": false,
       "velOverride": null,
       "isLocked": false,

@@ -13,7 +13,7 @@ public class OuttakeAutoCommand extends CommandBase {
   double time;
   public OuttakeAutoCommand() {
     // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(Robot.clawSub);
+    addRequirements(Robot.m_intake);
   }
 
   // Called when the command is initially scheduled.
@@ -25,13 +25,13 @@ public class OuttakeAutoCommand extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    Robot.clawSub.setIntake(-1);
+    Robot.m_intake.setIntake(-1);
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    Robot.clawSub.setIntake(0);
+    Robot.m_intake.setIntake(0);
   }
 
   // Returns true when the command should end.

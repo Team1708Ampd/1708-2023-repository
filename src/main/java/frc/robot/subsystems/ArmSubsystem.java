@@ -65,7 +65,7 @@ public class ArmSubsystem extends SubsystemBase {
     public void periodic() {
     }
 
-    public void setArm(double power) {
+    public void setArmRotation(double power) {
       armMotor1.set(TalonFXControlMode.PercentOutput, power);
       armMotor2.set(TalonFXControlMode.PercentOutput, power);
     }

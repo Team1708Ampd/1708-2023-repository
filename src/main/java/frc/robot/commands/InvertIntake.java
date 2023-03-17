@@ -10,7 +10,7 @@ import frc.robot.Robot;
 public class InvertIntake extends CommandBase {
   /** Creates a new InvertIntake. */
   public InvertIntake() {
-    addRequirements(Robot.clawSub);
+    addRequirements(Robot.m_intake);
     // Use addRequirements() here to declare subsystem dependencies.
   }
 
@@ -21,7 +21,7 @@ public class InvertIntake extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    Robot.clawSub.invertIntake();
+    Robot.m_intake.invertIntake();
   }
 
   // Called once the command ends or is interrupted.

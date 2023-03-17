@@ -3,35 +3,36 @@
     {
       "anchorPoint": {
         "x": 1.9315401788698316,
-        "y": 1.0518740335726287
+        "y": 2.6569567174222075
       },
       "prevControl": null,
       "nextControl": {
-        "x": 2.931540178869831,
-        "y": 1.0518740335726287
+        "x": 2.9315401788698354,
+        "y": 2.6569567174222075
       },
-      "holonomicAngle": -180.0,
+      "holonomicAngle": 0.0,
       "isReversal": false,
       "velOverride": null,
       "isLocked": false,
       "isStopPoint": false,
       "stopEvent": {
         "names": [
+          "tiltArm",
           "outtake"
         ],
-        "executionBehavior": "parallel",
+        "executionBehavior": "sequential",
         "waitBehavior": "none",
         "waitTime": 0
       }
     },
     {
       "anchorPoint": {
-        "x": 6.320579834142125,
-        "y": 0.9158500773141907
+        "x": 3.1194827301935306,
+        "y": 2.647888453671645
       },
       "prevControl": {
-        "x": 5.320579834142125,
-        "y": 0.9158500773141907
+        "x": 2.1194827301935306,
+        "y": 2.647888453671645
       },
       "nextControl": null,
       "holonomicAngle": 0.0,
@@ -40,7 +41,9 @@
       "isLocked": false,
       "isStopPoint": false,
       "stopEvent": {
-        "names": [],
+        "names": [
+          "balance"
+        ],
         "executionBehavior": "parallel",
         "waitBehavior": "none",
         "waitTime": 0
