@@ -6,11 +6,18 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Robot;
+import frc.robot.subsystems.IntakeSub;
 
 public class InvertIntake extends CommandBase {
+  // Intake subsystem
+  IntakeSub intakeSubsystem;
+
   /** Creates a new InvertIntake. */
-  public InvertIntake() {
-    addRequirements(Robot.m_intake);
+  public InvertIntake(IntakeSub intake) {
+
+    intakeSubsystem = intake;
+
+    addRequirements(intake);
     // Use addRequirements() here to declare subsystem dependencies.
   }
 
@@ -21,7 +28,7 @@ public class InvertIntake extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    Robot.m_intake.invertIntake();
+    intakeSubsystem.invertIntake();
   }
 
   // Called once the command ends or is interrupted.

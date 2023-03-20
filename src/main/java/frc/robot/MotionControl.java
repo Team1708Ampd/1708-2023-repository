@@ -13,7 +13,7 @@ import edu.wpi.first.math.trajectory.TrajectoryConfig;
 import edu.wpi.first.math.trajectory.TrajectoryGenerator;
 import edu.wpi.first.wpilibj2.command.ProfiledPIDCommand;
 import edu.wpi.first.wpilibj2.command.SwerveControllerCommand;
-import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.DriveSub;
 import frc.robot.DriveConstants.*;
 
 public class MotionControl {
@@ -22,7 +22,7 @@ public class MotionControl {
 
     private PIDConstants pid_AngleConst;
 
-    private DriveSubsystem m_drive;
+    private DriveSub m_drive;
 
     // Trajectory Configuration - All Generated Trajectories will be based on this configuration
     private TrajectoryConfig m_TrajectoryConfig;
@@ -46,7 +46,7 @@ public class MotionControl {
         return this;
     }
 
-    public MotionControl withSwerveSubsystem(DriveSubsystem drive)
+    public MotionControl withSwerveSubsystem(DriveSub drive)
     {
         this.m_drive = drive;
         return this;
@@ -70,7 +70,7 @@ public class MotionControl {
         return pid_AngleConst;
     }
 
-    public DriveSubsystem getSwerveSubsystem()
+    public DriveSub getSwerveSubsystem()
     {
         return this.m_drive;
     }

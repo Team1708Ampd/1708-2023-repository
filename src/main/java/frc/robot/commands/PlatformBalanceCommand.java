@@ -7,13 +7,13 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.DriveConstants;
-import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.DriveSub;
 
 // Command used to attempt to balance the platform underneath the robot
 public class PlatformBalanceCommand extends CommandBase{
 
     // Drive subsystem for controlling drive
-    DriveSubsystem drive;
+    DriveSub drive;
 
     // PID Controller for controller the robot
     PIDController controller = new PIDController(0.008, 0, 0);
@@ -24,7 +24,7 @@ public class PlatformBalanceCommand extends CommandBase{
     private boolean tilting;
     
     // Constructor for specifying the drive
-    public PlatformBalanceCommand(DriveSubsystem drv)
+    public PlatformBalanceCommand(DriveSub drv)
     {
         // Get the drive
         drive = drv;
