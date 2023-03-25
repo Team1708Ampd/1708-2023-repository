@@ -73,6 +73,8 @@ public class RobotContainer {
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
 
+    // init the robot arm so nothing breaks
+    initRobotArm();
     // Init the routines manager 
     initCompetitionShuffleboard();
 
@@ -182,6 +184,10 @@ public class RobotContainer {
                       .withTalonConfig(armConfig);
 
     /******** CREATE WRIST **********/
+
+    s_intake = new IntakeSub(11);
+
+    s_wrist = new WristSub(12);
 
   }
 
