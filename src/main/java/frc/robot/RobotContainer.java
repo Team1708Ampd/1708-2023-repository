@@ -12,7 +12,8 @@ import com.ctre.phoenix.sensors.CANCoderConfiguration;
 import com.ctre.phoenix.sensors.SensorInitializationStrategy;
 import com.pathplanner.lib.auto.PIDConstants;
 import frc.robot.swervelib.ctre.CanCoderFactoryBuilder.Direction;
-
+import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.HttpCamera;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
@@ -95,19 +96,17 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-    new JoystickButton(controller2, XboxController.Button.kA.value).whileTrue(new IntakeCommand(s_intake));
-    new JoystickButton(controller2, XboxController.Button.kB.value).whileTrue(new OuttakeCommand(s_intake));
+    // new JoystickButton(controller2, XboxController.Button.kA.value).whileTrue(new IntakeCommand(s_intake));
+    // new JoystickButton(controller2, XboxController.Button.kB.value).whileTrue(new OuttakeCommand(s_intake));
 
-    new JoystickButton(controller2, XboxController.Button.kLeftBumper.value).whileTrue(new ManualWristUp(s_wrist));
-    new JoystickButton(controller2, XboxController.Button.kRightBumper.value).whileTrue(new ManualWristDown(s_wrist));
+    // new JoystickButton(controller2, XboxController.Button.kLeftBumper.value).whileTrue(new ManualWristUp(s_wrist));
+    // new JoystickButton(controller2, XboxController.Button.kRightBumper.value).whileTrue(new ManualWristDown(s_wrist));
 
-    new JoystickButton(controller2, XboxController.Button.kBack.value).whileTrue(new ManualArmIn(s_ArmTele));
-    new JoystickButton(controller2, XboxController.Button.kStart.value).whileTrue(new ManualArmOut(s_ArmTele));
+    // new JoystickButton(controller2, XboxController.Button.kBack.value).whileTrue(new ManualArmIn(s_ArmTele));
+    // new JoystickButton(controller2, XboxController.Button.kStart.value).whileTrue(new ManualArmOut(s_ArmTele));
 
-    new JoystickButton(controller2, XboxController.Button.kRightStick.value).onTrue(new InvertIntake(s_intake));
-
-    new JoystickTrigger(controller2, XboxController.Axis.kLeftTrigger.value).whileTrue(new ManualArmUp(s_ArmRotation));
-    new JoystickTrigger(controller2, XboxController.Axis.kRightTrigger.value).whileTrue(new ManualArmDown(s_ArmRotation));
+    // new JoystickTrigger(controller2, XboxController.Axis.kLeftTrigger.value).whileTrue(new ManualArmUp(s_ArmRotation));
+    // new JoystickTrigger(controller2, XboxController.Axis.kRightTrigger.value).whileTrue(new ManualArmDown(s_ArmRotation));
 
   }
 
@@ -233,8 +232,19 @@ public class RobotContainer {
     teamChooser.setDefaultOption("BLUE", 1);
     teamChooser.addOption("RED", 2);
 
+    HttpCamera limelightOne = new HttpCamera("Limelight One", "http://10.17.8.11:5800");
+    HttpCamera limelightTwo = new HttpCamera("Limelight Two", "http://10.17.8.93:5800");
+
+    CameraServer.startAutomaticCapture(limelightOne);
+    CameraServer.startAutomaticCapture(limelightTwo);
+
+    
+
+    Shuffleboard.getTab("SmartDashboard").add(limelightOne);
+    Shuffleboard.getTab("SmartDashboard").add(limelightTwo);
+
     Shuffleboard.getTab("SmartDashboard")
-      .add(autoChooser);
+      .add(autoChooser);  
 
     Shuffleboard.getTab("SmartDashboard")
       .add(teamChooser);
