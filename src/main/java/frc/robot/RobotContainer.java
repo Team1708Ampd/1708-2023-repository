@@ -6,22 +6,20 @@ package frc.robot;
 
 import java.util.HashMap;
 
+import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
+import com.ctre.phoenix.sensors.AbsoluteSensorRange;
+import com.ctre.phoenix.sensors.CANCoderConfiguration;
+import com.ctre.phoenix.sensors.SensorInitializationStrategy;
 import com.pathplanner.lib.auto.PIDConstants;
-
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.controller.ProfiledPIDController;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.geometry.Translation2d;
-import edu.wpi.first.math.trajectory.TrajectoryConfig;
+import frc.robot.swervelib.ctre.CanCoderFactoryBuilder.Direction;
+import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.HttpCamera;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
-import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.commands.DriveCommand;
-import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.DriveSub;
 import frc.robot.subsystems.IntakeSub;
 import frc.robot.DriveConstants.*;
 import frc.robot.AutoConstants.*;
@@ -31,8 +29,10 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import frc.robot.subsystems.ArmRotationSub;
+import frc.robot.subsystems.ArmTelescopingSub;
 import frc.robot.subsystems.CameraSub;
-
+import frc.robot.subsystems.WristSub;
 import frc.robot.commands.DriveCommand;
 import frc.robot.commands.IntakeCommand;
 import frc.robot.commands.InvertIntake;
@@ -56,20 +56,22 @@ import frc.robot.commands.OuttakeAutoCommand;
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
 
-  private final DriveSubsystem driveSub = new DriveSubsystem(AutoConstants.odo_BluePositionStart6);
+  private final DriveSub driveSub = new DriveSub(AutoConstants.odo_BluePositionStart6);
   private final XboxController controller = new XboxController(0);
   private final XboxController controller2 = new XboxController(1);
 
   private MotionControl m_MotionControl;
   private AutoManager m_AutoManager;
-  private CameraSub m_camSub;
-  private IntakeSub m_intake;
+  private CameraSub s_camSub;
+  private IntakeSub s_intake;
+  private ArmRotationSub  s_ArmRotation;
+  private ArmTelescopingSub s_ArmTele;
+  private WristSub s_wrist;
   private SendableChooser<Integer> autoChooser;
   private SendableChooser<Integer> teamChooser;
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-
 
     // Init the routines manager 
     initCompetitionShuffleboard();
@@ -80,8 +82,7 @@ public class RobotContainer {
       () -> -modifyAxis(controller.getLeftX()) * DriveConstants.MAX_VELOCITY_METERS_PER_SECOND,
       () -> -modifyAxis(controller.getRightX()) * DriveConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND
     ));
-
-   
+ 
 
     // Configure the button bindings
     configureButtonBindings();
@@ -95,19 +96,18 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-    new JoystickButton(controller2, XboxController.Button.kA.value).whileTrue(new IntakeCommand());
-    new JoystickButton(controller2, XboxController.Button.kB.value).whileTrue(new OuttakeCommand());
+    // new JoystickButton(controller2, XboxController.Button.kA.value).whileTrue(new IntakeCommand(s_intake));
+    // new JoystickButton(controller2, XboxController.Button.kB.value).whileTrue(new OuttakeCommand(s_intake));
 
-    new JoystickButton(controller2, XboxController.Button.kLeftBumper.value).whileTrue(new ManualWristUp());
-    new JoystickButton(controller2, XboxController.Button.kRightBumper.value).whileTrue(new ManualWristDown());
+    // new JoystickButton(controller2, XboxController.Button.kLeftBumper.value).whileTrue(new ManualWristUp(s_wrist));
+    // new JoystickButton(controller2, XboxController.Button.kRightBumper.value).whileTrue(new ManualWristDown(s_wrist));
 
-    // new JoystickButton(controller2, XboxController.Button.kLeftBumper.value).whileTrue(new ManualArmUp());
-    // new JoystickButton(controller2, XboxController.Button.kRightBumper.value).whileTrue(new ManualArmDown());
+    // new JoystickButton(controller2, XboxController.Button.kBack.value).whileTrue(new ManualArmIn(s_ArmTele));
+    // new JoystickButton(controller2, XboxController.Button.kStart.value).whileTrue(new ManualArmOut(s_ArmTele));
 
-    new JoystickButton(controller2, XboxController.Button.kBack.value).whileTrue(new ManualArmIn());
-    new JoystickButton(controller2, XboxController.Button.kStart.value).whileTrue(new ManualArmOut());
+    // new JoystickTrigger(controller2, XboxController.Axis.kLeftTrigger.value).whileTrue(new ManualArmUp(s_ArmRotation));
+    // new JoystickTrigger(controller2, XboxController.Axis.kRightTrigger.value).whileTrue(new ManualArmDown(s_ArmRotation));
 
-    new JoystickButton(controller2, XboxController.Button.kRightStick.value).onTrue(new InvertIntake());
   }
 
   /**
@@ -122,9 +122,8 @@ public class RobotContainer {
 
     if (getAutoSelecton() == AutoRoutine.BASIC)
     {
-      SequentialCommandGroup autoCMD = new SequentialCommandGroup(new TiltArmCommand(), 
-                                                                  new OuttakeAutoCommand());
-
+      SequentialCommandGroup autoCMD = new SequentialCommandGroup(new TiltArmCommand(1, true, s_ArmRotation), 
+                                                                  new OuttakeAutoCommand(s_intake));
 
       return autoCMD;
     }
@@ -156,6 +155,36 @@ public class RobotContainer {
     return value;
   }
 
+  private void initRobotArm()
+  {
+    /******** CREATE ARM **********/
+
+    //Create the config for the motors. Each are equally matched here. Defaults taken from documentation
+    TalonFXConfiguration armConfig = new TalonFXConfiguration();
+    armConfig.supplyCurrLimit.enable = true;
+    armConfig.supplyCurrLimit.triggerThresholdCurrent = 40; // the peak supply current, in amps
+    armConfig.supplyCurrLimit.triggerThresholdTime = 1.5; // the time at the peak supply current before the limit triggers, in sec
+    armConfig.supplyCurrLimit.currentLimit = 30; // the current to maintain if the peak supply limit is triggered
+
+    // Build the CANCoder config
+    CANCoderConfiguration cancoderConfig = new CANCoderConfiguration();
+    cancoderConfig.absoluteSensorRange = AbsoluteSensorRange.Unsigned_0_to_360;
+    cancoderConfig.magnetOffsetDegrees = Math.toDegrees(ArmConstants.ARM_ROTATION_OFFSET);
+    cancoderConfig.sensorDirection = Direction.CLOCKWISE == ArmConstants.ARM_DIRECTION;
+    cancoderConfig.initializationStrategy = SensorInitializationStrategy.BootToAbsolutePosition;
+    
+
+    s_ArmRotation = new ArmRotationSub(8, 9, 4)
+                          .withTalonConfig(armConfig)
+                          .withEncoderConfiguration(cancoderConfig);
+
+    s_ArmTele = new ArmTelescopingSub(10)
+                      .withTalonConfig(armConfig);
+
+    /******** CREATE WRIST **********/
+
+  }
+
   private void initAutoRoutines()
   {
     double autoSpeed = 4;
@@ -180,8 +209,9 @@ public class RobotContainer {
 
       HashMap<String, Command> eventsMap = new HashMap<>();
       eventsMap.put("balance", new PlatformBalanceCommand(driveSub));
-      eventsMap.put("outtake", new OuttakeAutoCommand());
-      eventsMap.put("tiltArm", new TiltArmCommand());
+      eventsMap.put("outtake", new OuttakeAutoCommand(s_intake));
+      eventsMap.put("tiltArm", new TiltArmCommand(1, true, s_ArmRotation));
+      eventsMap.put("pickArmMove", new TiltArmCommand(2.3, false, s_ArmRotation));
 
       m_AutoManager = new AutoManager(getTeamSelecton(), autoR)
                               .withMotionControl(m_MotionControl)
@@ -202,8 +232,19 @@ public class RobotContainer {
     teamChooser.setDefaultOption("BLUE", 1);
     teamChooser.addOption("RED", 2);
 
+    HttpCamera limelightOne = new HttpCamera("Limelight One", "http://10.17.8.11:5800");
+    HttpCamera limelightTwo = new HttpCamera("Limelight Two", "http://10.17.8.93:5800");
+
+    CameraServer.startAutomaticCapture(limelightOne);
+    CameraServer.startAutomaticCapture(limelightTwo);
+
+    
+
+    Shuffleboard.getTab("SmartDashboard").add(limelightOne);
+    Shuffleboard.getTab("SmartDashboard").add(limelightTwo);
+
     Shuffleboard.getTab("SmartDashboard")
-      .add(autoChooser);
+      .add(autoChooser);  
 
     Shuffleboard.getTab("SmartDashboard")
       .add(teamChooser);

@@ -2,19 +2,19 @@ package frc.robot.commands;
 
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.subsystems.DriveSubsystem;
+import frc.robot.subsystems.DriveSub;
 
 import java.util.function.DoubleSupplier;
 
 public class DriveCommand extends CommandBase {
-    private final DriveSubsystem driveSubsystem;
+    private final DriveSub driveSubsystem;
 
     private final DoubleSupplier m_translationXSupplier;
     private final DoubleSupplier m_translationYSupplier;
     private final DoubleSupplier m_rotationSupplier;
 
 
-    public DriveCommand(DriveSubsystem driveSub, DoubleSupplier translationXSupplier,
+    public DriveCommand(DriveSub driveSub, DoubleSupplier translationXSupplier,
             DoubleSupplier translationYSupplier, DoubleSupplier rotationSupplier) {
         this.driveSubsystem = driveSub;
         this.m_translationXSupplier = translationXSupplier;
