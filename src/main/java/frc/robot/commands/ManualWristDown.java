@@ -6,14 +6,14 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Robot;
-import frc.robot.subsystems.ClawSub;
+import frc.robot.subsystems.WristSub;
 
 public class ManualWristDown extends CommandBase {
   // Reference to the clab subsystem
-  ClawSub clawSub;
+  WristSub clawSub;
 
   /** Creates a new IntakeCommand. */
-  public ManualWristDown(ClawSub claw) {
+  public ManualWristDown(WristSub claw) {
     clawSub = claw;
 
     // Use addRequirements() here to declare subsystem dependencies.

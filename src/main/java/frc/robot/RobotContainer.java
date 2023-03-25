@@ -31,7 +31,7 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.subsystems.ArmRotationSub;
 import frc.robot.subsystems.ArmTelescopingSub;
 import frc.robot.subsystems.CameraSub;
-import frc.robot.subsystems.ClawSub;
+import frc.robot.subsystems.WristSub;
 import frc.robot.commands.DriveCommand;
 import frc.robot.commands.IntakeCommand;
 import frc.robot.commands.InvertIntake;
@@ -65,7 +65,7 @@ public class RobotContainer {
   private IntakeSub s_intake;
   private ArmRotationSub  s_ArmRotation;
   private ArmTelescopingSub s_ArmTele;
-  private ClawSub s_wrist;
+  private WristSub s_wrist;
   private SendableChooser<Integer> autoChooser;
   private SendableChooser<Integer> teamChooser;
 
