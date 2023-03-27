@@ -44,6 +44,7 @@ import frc.robot.commands.ManualWristDown;
 import frc.robot.commands.ManualWristUp;
 import frc.robot.commands.OuttakeCommand;
 import frc.robot.commands.PlatformBalanceCommand;
+import frc.robot.commands.ResetFOD;
 import frc.robot.commands.TiltArmCommand;
 import frc.robot.commands.OuttakeAutoCommand;
 
@@ -109,6 +110,7 @@ public class RobotContainer {
 
     // new JoystickTrigger(controller2, XboxController.Axis.kLeftTrigger.value).whileTrue(new ManualArmUp(s_ArmRotation));
     // new JoystickTrigger(controller2, XboxController.Axis.kRightTrigger.value).whileTrue(new ManualArmDown(s_ArmRotation));
+    new JoystickButton(controller, XboxController.Button.kA.value).whileTrue(new ResetFOD(driveSub));
 
   }
 
@@ -216,7 +218,7 @@ public class RobotContainer {
       HashMap<String, Command> eventsMap = new HashMap<>();
       eventsMap.put("balance", new PlatformBalanceCommand(driveSub));
       eventsMap.put("outtake", new OuttakeAutoCommand(s_intake));
-      eventsMap.put("tiltArm", new TiltArmCommand(1, true, s_ArmRotation));
+      eventsMap.put("tiltArm", new TiltArmCommand(0, true, s_ArmRotation));
       eventsMap.put("pickArmMove", new TiltArmCommand(2.3, false, s_ArmRotation));
 
       m_AutoManager = new AutoManager(getTeamSelecton(), autoR)
