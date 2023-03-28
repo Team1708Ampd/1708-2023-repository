@@ -10,8 +10,15 @@ import edu.wpi.first.net.PortForwarder;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.AutoManager.TeamColor;
 
+import java.io.IOException;
+
+import edu.wpi.first.apriltag.AprilTag;
+import edu.wpi.first.apriltag.AprilTagFieldLayout;
+import edu.wpi.first.apriltag.AprilTagFields;
 public class CameraSub extends SubsystemBase {
   
   // Camera Server Instance
@@ -20,8 +27,16 @@ public class CameraSub extends SubsystemBase {
   NetworkTable limelight_one;
   NetworkTable limelight_two;
 
+  // Internal reference to the driver sub so that the vision pose estimations
+  // can be used to update the robot pose
+  DriveSub drive;
+
+  // 2023 Charged Season Field Layout
+  AprilTagFieldLayout field;
+
+
   /** Creates a new CameraSub. */
-  public CameraSub() {
+  public CameraSub(DriveSub driverSub, TeamColor alliance) {
     limelight_one = NetworkTableInstance.getDefault().getTable("limelight-one");
     limelight_two = NetworkTableInstance.getDefault().getTable("limelight-two");
 
@@ -32,17 +47,65 @@ public class CameraSub extends SubsystemBase {
     // Forward ports
     for (int port = 5800; port <= 5805; port++) {
       PortForwarder.add(port, "limelight-one", port);
-  }
+    }
 
-    CameraServer.addServer("limelight-one");
-    // Create the camera server
-    camServer = CameraServer.startAutomaticCapture(null);
+    try{
+      // Load the field 
+      field = AprilTagFields.k2023ChargedUp.loadAprilTagLayoutField();
+      if (alliance == TeamColor.BLUE)
+      {
+        field.setOrigin(AprilTagFieldLayout.OriginPosition.kBlueAllianceWallRightSide);
+      }
+      else
+      {
+        field.setOrigin(AprilTagFieldLayout.OriginPosition.kRedAllianceWallRightSide);
+      }
 
+    }
+    catch(IOException exc)
+    {
+      DriverStation.reportError("Oh no the field layout didnt load, so sad D: ", true);
+    }
+
+    drive = driverSub;
+
+    // Set up for 
+    limelight_one.getEntry("pipeline").setNumber(1);
   }
 
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+
+    
+
+
+
+  }
+
+  public NetworkTable GetLimelight1()
+  {
+    return limelight_one;
+  }
+
+  public NetworkTable GetLimelight2()
+  {
+    return limelight_two;
+  }
+
+  public void SetLimelight1Pipeline(Number pID)
+  {
+    limelight_one.getEntry("pipeline").setNumber(pID);
+  }
+
+  public void SetLimelight2Pipeline(Number pID)
+  {
+    limelight_two.getEntry("pipeline").setNumber(pID);
+  }
+
+  public AprilTag GetAprilTagFromID(int id)
+  {
+    return field.getTags().get(id);
   }
 
   public double getCameraDistance(NetworkTable table, double limelightHeight, double goalHeight) {

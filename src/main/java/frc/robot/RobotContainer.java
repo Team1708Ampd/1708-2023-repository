@@ -12,6 +12,8 @@ import com.ctre.phoenix.sensors.CANCoderConfiguration;
 import com.ctre.phoenix.sensors.SensorInitializationStrategy;
 import com.pathplanner.lib.auto.PIDConstants;
 import frc.robot.swervelib.ctre.CanCoderFactoryBuilder.Direction;
+import edu.wpi.first.apriltag.AprilTag;
+import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.HttpCamera;
 import edu.wpi.first.wpilibj.GenericHID;
@@ -42,6 +44,7 @@ import frc.robot.commands.ManualArmOut;
 import frc.robot.commands.ManualArmUp;
 import frc.robot.commands.ManualWristDown;
 import frc.robot.commands.ManualWristUp;
+import frc.robot.commands.NavigateToAprilTagCommand;
 import frc.robot.commands.OuttakeCommand;
 import frc.robot.commands.PlatformBalanceCommand;
 import frc.robot.commands.TiltArmCommand;
@@ -70,6 +73,7 @@ public class RobotContainer {
   private SendableChooser<Integer> autoChooser;
   private SendableChooser<Integer> teamChooser;
 
+
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
 
@@ -96,17 +100,17 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-    // new JoystickButton(controller2, XboxController.Button.kA.value).whileTrue(new IntakeCommand(s_intake));
-    // new JoystickButton(controller2, XboxController.Button.kB.value).whileTrue(new OuttakeCommand(s_intake));
+    new JoystickButton(controller2, XboxController.Button.kA.value).whileTrue(new IntakeCommand(s_intake));
+    new JoystickButton(controller2, XboxController.Button.kB.value).whileTrue(new OuttakeCommand(s_intake));
 
-    // new JoystickButton(controller2, XboxController.Button.kLeftBumper.value).whileTrue(new ManualWristUp(s_wrist));
-    // new JoystickButton(controller2, XboxController.Button.kRightBumper.value).whileTrue(new ManualWristDown(s_wrist));
+    new JoystickButton(controller2, XboxController.Button.kLeftBumper.value).whileTrue(new ManualWristUp(s_wrist));
+    new JoystickButton(controller2, XboxController.Button.kRightBumper.value).whileTrue(new ManualWristDown(s_wrist));
 
-    // new JoystickButton(controller2, XboxController.Button.kBack.value).whileTrue(new ManualArmIn(s_ArmTele));
-    // new JoystickButton(controller2, XboxController.Button.kStart.value).whileTrue(new ManualArmOut(s_ArmTele));
+    new JoystickButton(controller2, XboxController.Button.kBack.value).whileTrue(new ManualArmIn(s_ArmTele));
+    new JoystickButton(controller2, XboxController.Button.kStart.value).whileTrue(new ManualArmOut(s_ArmTele));
 
-    // new JoystickTrigger(controller2, XboxController.Axis.kLeftTrigger.value).whileTrue(new ManualArmUp(s_ArmRotation));
-    // new JoystickTrigger(controller2, XboxController.Axis.kRightTrigger.value).whileTrue(new ManualArmDown(s_ArmRotation));
+    new JoystickTrigger(controller2, XboxController.Axis.kLeftTrigger.value).whileTrue(new ManualArmUp(s_ArmRotation));
+    new JoystickTrigger(controller2, XboxController.Axis.kRightTrigger.value).whileTrue(new ManualArmDown(s_ArmRotation));
 
   }
 
@@ -187,6 +191,7 @@ public class RobotContainer {
 
   private void initAutoRoutines()
   {
+    AprilTag targetTag = s_camSub.GetAprilTagFromID(0);
     double autoSpeed = 4;
     m_MotionControl = new MotionControl()
       .withTranslationPIDConstants(new PIDConstants(AutoConstants.kPIDXController, 0, 0))
@@ -208,7 +213,8 @@ public class RobotContainer {
       }
 
       HashMap<String, Command> eventsMap = new HashMap<>();
-      eventsMap.put("balance", new PlatformBalanceCommand(driveSub));
+      //eventsMap.put("balance", new PlatformBalanceCommand(driveSub));
+      eventsMap.put("balance", new NavigateToAprilTagCommand(s_camSub, driveSub, targetTag));
       eventsMap.put("outtake", new OuttakeAutoCommand(s_intake));
       eventsMap.put("tiltArm", new TiltArmCommand(1, true, s_ArmRotation));
       eventsMap.put("pickArmMove", new TiltArmCommand(2.3, false, s_ArmRotation));
