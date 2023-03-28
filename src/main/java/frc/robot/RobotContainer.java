@@ -47,6 +47,7 @@ import frc.robot.commands.ManualWristUp;
 import frc.robot.commands.NavigateToAprilTagCommand;
 import frc.robot.commands.OuttakeCommand;
 import frc.robot.commands.PlatformBalanceCommand;
+import frc.robot.commands.ResetFOD;
 import frc.robot.commands.TiltArmCommand;
 import frc.robot.commands.OuttakeAutoCommand;
 
@@ -77,6 +78,8 @@ public class RobotContainer {
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
 
+    // init the robot arm so nothing breaks
+    initRobotArm();
     // Init the routines manager 
     initCompetitionShuffleboard();
 
@@ -111,6 +114,8 @@ public class RobotContainer {
 
     new JoystickTrigger(controller2, XboxController.Axis.kLeftTrigger.value).whileTrue(new ManualArmUp(s_ArmRotation));
     new JoystickTrigger(controller2, XboxController.Axis.kRightTrigger.value).whileTrue(new ManualArmDown(s_ArmRotation));
+    
+    new JoystickButton(controller, XboxController.Button.kA.value).whileTrue(new ResetFOD(driveSub));
 
   }
 
@@ -187,6 +192,10 @@ public class RobotContainer {
 
     /******** CREATE WRIST **********/
 
+    s_intake = new IntakeSub(11);
+
+    s_wrist = new WristSub(12);
+
   }
 
   private void initAutoRoutines()
@@ -216,7 +225,7 @@ public class RobotContainer {
       //eventsMap.put("balance", new PlatformBalanceCommand(driveSub));
       eventsMap.put("balance", new NavigateToAprilTagCommand(s_camSub, driveSub, targetTag));
       eventsMap.put("outtake", new OuttakeAutoCommand(s_intake));
-      eventsMap.put("tiltArm", new TiltArmCommand(1, true, s_ArmRotation));
+      eventsMap.put("tiltArm", new TiltArmCommand(0, true, s_ArmRotation));
       eventsMap.put("pickArmMove", new TiltArmCommand(2.3, false, s_ArmRotation));
 
       m_AutoManager = new AutoManager(getTeamSelecton(), autoR)

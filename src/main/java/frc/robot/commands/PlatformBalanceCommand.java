@@ -16,7 +16,7 @@ public class PlatformBalanceCommand extends CommandBase{
     DriveSub drive;
 
     // PID Controller for controller the robot
-    PIDController controller = new PIDController(0.008, 0, 0);
+    PIDController controller = new PIDController(0.012, 0, 0);
 
     // Helper variables
     private double startTime;
@@ -57,7 +57,7 @@ public class PlatformBalanceCommand extends CommandBase{
             startTime = Timer.getFPGATimestamp();    
             System.out.println("At ramp pitch");       
         }
-        if (tilting && Timer.getFPGATimestamp() > startTime + 1.35)
+        if (tilting && Timer.getFPGATimestamp() > startTime + 1.55)
         {
             speed = controller.calculate(Math.abs(drive.getRoll()));
             System.out.println("Balancing"); 
