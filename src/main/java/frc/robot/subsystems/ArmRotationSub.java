@@ -88,14 +88,14 @@ public class ArmRotationSub extends SubsystemBase {
   @Override
   public void periodic() {    
 
-    SmartDashboard.putNumber("Arm Current Angle", Rotation2d.fromRadians(getArmAngle()).getDegrees());
+    //SmartDashboard.putNumber("Arm Current Angle", Rotation2d.fromRadians(getArmAngle()).getDegrees());
 
     // Update the motor outputs to the current desired output value
     armMotor1.set(TalonFXControlMode.PercentOutput, armOutRequested);
     armMotor2.set(TalonFXControlMode.PercentOutput, armOutRequested);
 
     // Update the current position of the Arm
-    armPositionCurrent = Rotation2d.fromRadians(getArmAngle());
+    //armPositionCurrent = Rotation2d.fromRadians(getArmAngle());
   }
 
   // Allow user to pass in Talon configuration

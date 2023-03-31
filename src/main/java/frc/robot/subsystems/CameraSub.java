@@ -37,17 +37,17 @@ public class CameraSub extends SubsystemBase {
 
   /** Creates a new CameraSub. */
   public CameraSub(DriveSub driverSub, TeamColor alliance) {
-    limelight_one = NetworkTableInstance.getDefault().getTable("limelight-one");
-    limelight_two = NetworkTableInstance.getDefault().getTable("limelight-two");
+    limelight_one = NetworkTableInstance.getDefault().getTable("limelight");
+    limelight_two = NetworkTableInstance.getDefault().getTable("limelight-one");
 
     // Set Limelights to camera mode
-    limelight_one.getEntry("camMode").setNumber(1);
-    limelight_one.getEntry("stream").setNumber(0);
+    //limelight_one.getEntry("camMode").setNumber(1);
+    //limelight_one.getEntry("stream").setNumber(0);
 
     // Forward ports
-    for (int port = 5800; port <= 5805; port++) {
-      PortForwarder.add(port, "limelight-one", port);
-    }
+    // for (int port = 5800; port <= 5805; port++) {
+    //   PortForwarder.add(port, "limelight", port);
+    // }
 
     try{
       // Load the field 

@@ -78,10 +78,15 @@ public class RobotContainer {
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
 
+   
+
     // init the robot arm so nothing breaks
     initRobotArm();
     // Init the routines manager 
     initCompetitionShuffleboard();
+
+     // Init Camera
+     s_camSub = new CameraSub(driveSub, getTeamSelecton());
 
     driveSub.setDefaultCommand(new DriveCommand(
       driveSub,
@@ -114,8 +119,9 @@ public class RobotContainer {
 
     new JoystickTrigger(controller2, XboxController.Axis.kLeftTrigger.value).whileTrue(new ManualArmUp(s_ArmRotation));
     new JoystickTrigger(controller2, XboxController.Axis.kRightTrigger.value).whileTrue(new ManualArmDown(s_ArmRotation));
-    
-    new JoystickButton(controller, XboxController.Button.kA.value).whileTrue(new ResetFOD(driveSub));
+    AprilTag targetTag = s_camSub.GetAprilTagFromID(6);
+
+    new JoystickButton(controller, XboxController.Button.kA.value).whileTrue(new NavigateToAprilTagCommand(s_camSub, driveSub, targetTag));
 
   }
 
