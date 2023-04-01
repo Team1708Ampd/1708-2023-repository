@@ -16,10 +16,9 @@ public class PlatformBalanceCommand extends CommandBase{
     DriveSub drive;
 
     // PID Controller for controller the robot
-    PIDController controller = new PIDController(0.008, 0, 0);
+    PIDController controller = new PIDController(0.01, 0, 0);
 
     // Helper variables
-    private double startTime;
     private int balanceCounter;
     private boolean tilting;
     
@@ -34,7 +33,6 @@ public class PlatformBalanceCommand extends CommandBase{
     @Override 
     public void initialize()
     {
-        startTime = 0;
         balanceCounter = 0;
         tilting = false;
 
@@ -49,18 +47,24 @@ public class PlatformBalanceCommand extends CommandBase{
     @Override
     public void execute()
     {
-        double speed = 1;
-
-        if (!tilting && Math.abs(drive.getRoll()) > 10)
+        double speed = -1;
+        if (!tilting && Math.abs(drive.getRoll()) > 15)
         {
             tilting = true;
-            startTime = Timer.getFPGATimestamp();    
+            //startTime = Timer.getFPGATimestamp();    
             System.out.println("At ramp pitch");       
         }
-        if (tilting && Timer.getFPGATimestamp() > startTime + 1.35)
+        if (tilting)
         {
+          if (Math.abs(drive.getRoll()) > 14)
+          {
+            speed = -1;
+          }
+          else
+          {
             speed = controller.calculate(Math.abs(drive.getRoll()));
             System.out.println("Balancing"); 
+          }            
         }
         System.out.printf("Robot Roll %f\n", drive.getRoll());
         SmartDashboard.putNumber("Robot", speed);
@@ -82,7 +86,7 @@ public class PlatformBalanceCommand extends CommandBase{
             balanceCounter = 0;
         }
 
-        return (balanceCounter > 2);
+        return (balanceCounter > 5);
     }
 
     @Override

@@ -12,12 +12,16 @@ import com.ctre.phoenix.sensors.CANCoderConfiguration;
 import com.ctre.phoenix.sensors.SensorInitializationStrategy;
 import com.pathplanner.lib.auto.PIDConstants;
 import frc.robot.swervelib.ctre.CanCoderFactoryBuilder.Direction;
+import edu.wpi.first.apriltag.AprilTag;
+import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.HttpCamera;
+import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import frc.robot.commands.DriveCommand;
 import frc.robot.subsystems.DriveSub;
 import frc.robot.subsystems.IntakeSub;
@@ -42,8 +46,10 @@ import frc.robot.commands.ManualArmOut;
 import frc.robot.commands.ManualArmUp;
 import frc.robot.commands.ManualWristDown;
 import frc.robot.commands.ManualWristUp;
+import frc.robot.commands.NavigateToAprilTagCommand;
 import frc.robot.commands.OuttakeCommand;
 import frc.robot.commands.PlatformBalanceCommand;
+import frc.robot.commands.ResetFOD;
 import frc.robot.commands.TiltArmCommand;
 import frc.robot.commands.OuttakeAutoCommand;
 
@@ -56,8 +62,8 @@ import frc.robot.commands.OuttakeAutoCommand;
 public class RobotContainer {
   // The robot's subsystems and commands are defined here...
 
-  private final DriveSub driveSub = new DriveSub(AutoConstants.odo_BluePositionStart6);
-  private final XboxController controller = new XboxController(0);
+  public final DriveSub driveSub = new DriveSub(AutoConstants.odo_BluePositionStart6);
+  public final XboxController controller = new XboxController(0);
   private final XboxController controller2 = new XboxController(1);
 
   private MotionControl m_MotionControl;
@@ -69,12 +75,21 @@ public class RobotContainer {
   private WristSub s_wrist;
   private SendableChooser<Integer> autoChooser;
   private SendableChooser<Integer> teamChooser;
+  private boolean tilting = false;
+
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
 
+   
+
+    // init the robot arm so nothing breaks
+    initRobotArm();
     // Init the routines manager 
     initCompetitionShuffleboard();
+
+     // Init Camera
+     s_camSub = new CameraSub(driveSub, getTeamSelecton());
 
     driveSub.setDefaultCommand(new DriveCommand(
       driveSub,
@@ -96,17 +111,20 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-    // new JoystickButton(controller2, XboxController.Button.kA.value).whileTrue(new IntakeCommand(s_intake));
-    // new JoystickButton(controller2, XboxController.Button.kB.value).whileTrue(new OuttakeCommand(s_intake));
+    new JoystickButton(controller2, XboxController.Button.kA.value).whileTrue(new IntakeCommand(s_intake));
+    new JoystickButton(controller2, XboxController.Button.kB.value).whileTrue(new OuttakeCommand(s_intake));
 
-    // new JoystickButton(controller2, XboxController.Button.kLeftBumper.value).whileTrue(new ManualWristUp(s_wrist));
-    // new JoystickButton(controller2, XboxController.Button.kRightBumper.value).whileTrue(new ManualWristDown(s_wrist));
+    new JoystickButton(controller2, XboxController.Button.kLeftBumper.value).whileTrue(new ManualWristUp(s_wrist));
+    new JoystickButton(controller2, XboxController.Button.kRightBumper.value).whileTrue(new ManualWristDown(s_wrist));
 
-    // new JoystickButton(controller2, XboxController.Button.kBack.value).whileTrue(new ManualArmIn(s_ArmTele));
-    // new JoystickButton(controller2, XboxController.Button.kStart.value).whileTrue(new ManualArmOut(s_ArmTele));
+    new JoystickButton(controller2, XboxController.Button.kBack.value).whileTrue(new ManualArmIn(s_ArmTele));
+    new JoystickButton(controller2, XboxController.Button.kStart.value).whileTrue(new ManualArmOut(s_ArmTele));
 
-    // new JoystickTrigger(controller2, XboxController.Axis.kLeftTrigger.value).whileTrue(new ManualArmUp(s_ArmRotation));
-    // new JoystickTrigger(controller2, XboxController.Axis.kRightTrigger.value).whileTrue(new ManualArmDown(s_ArmRotation));
+    new JoystickTrigger(controller2, XboxController.Axis.kLeftTrigger.value).whileTrue(new ManualArmUp(s_ArmRotation));
+    new JoystickTrigger(controller2, XboxController.Axis.kRightTrigger.value).whileTrue(new ManualArmDown(s_ArmRotation));
+    AprilTag targetTag = s_camSub.GetAprilTagFromID(6);
+
+    //new JoystickButton(controller, XboxController.Button.kA.value).onTrue(new PlatformBalanceCommand(driveSub));
 
   }
 
@@ -183,10 +201,15 @@ public class RobotContainer {
 
     /******** CREATE WRIST **********/
 
+    s_intake = new IntakeSub(11);
+
+    s_wrist = new WristSub(12);
+
   }
 
   private void initAutoRoutines()
   {
+    AprilTag targetTag = s_camSub.GetAprilTagFromID(0);
     double autoSpeed = 4;
     m_MotionControl = new MotionControl()
       .withTranslationPIDConstants(new PIDConstants(AutoConstants.kPIDXController, 0, 0))
@@ -209,14 +232,15 @@ public class RobotContainer {
 
       HashMap<String, Command> eventsMap = new HashMap<>();
       eventsMap.put("balance", new PlatformBalanceCommand(driveSub));
+      //eventsMap.put("balance", new NavigateToAprilTagCommand(s_camSub, driveSub, targetTag));
       eventsMap.put("outtake", new OuttakeAutoCommand(s_intake));
-      eventsMap.put("tiltArm", new TiltArmCommand(1, true, s_ArmRotation));
+      eventsMap.put("tiltArm", new TiltArmCommand(0, true, s_ArmRotation));
       eventsMap.put("pickArmMove", new TiltArmCommand(2.3, false, s_ArmRotation));
 
       m_AutoManager = new AutoManager(getTeamSelecton(), autoR)
                               .withMotionControl(m_MotionControl)
                               .withEventMap(eventsMap)
-                              .withMaxSpeed(autoSpeed);
+                              .withMaxSpeed(2);
     }      
   }
 
@@ -231,17 +255,6 @@ public class RobotContainer {
     teamChooser = new SendableChooser<Integer>();
     teamChooser.setDefaultOption("BLUE", 1);
     teamChooser.addOption("RED", 2);
-
-    HttpCamera limelightOne = new HttpCamera("Limelight One", "http://10.17.8.11:5800");
-    HttpCamera limelightTwo = new HttpCamera("Limelight Two", "http://10.17.8.93:5800");
-
-    CameraServer.startAutomaticCapture(limelightOne);
-    CameraServer.startAutomaticCapture(limelightTwo);
-
-    
-
-    Shuffleboard.getTab("SmartDashboard").add(limelightOne);
-    Shuffleboard.getTab("SmartDashboard").add(limelightTwo);
 
     Shuffleboard.getTab("SmartDashboard")
       .add(autoChooser);  
@@ -295,5 +308,50 @@ public class RobotContainer {
     }
 
     return team;
+  }
+
+  public void debugBalance()
+  {
+    SmartDashboard.putNumber("PID", 0.1);
+    SmartDashboard.putNumber("ANGLE", 13);
+    double speed = 1;
+
+    if (controller.getAButton() == true)
+    {
+      if (!tilting && Math.abs(driveSub.getRoll()) > 15)
+        {
+            tilting = true;
+            //startTime = Timer.getFPGATimestamp();    
+            System.out.println("At ramp pitch");       
+        }
+        if (tilting)
+        {
+          if (Math.abs(driveSub.getRoll()) > SmartDashboard.getNumber("ANGLE", 13))
+          {
+            speed = 1;
+          }
+          else
+          {
+            //speed = controller.calculate(Math.abs(driveSub.getRoll()));
+            System.out.println("Balancing"); 
+          }
+            
+        }
+        System.out.printf("Robot Roll %f\n", driveSub.getRoll());
+        SmartDashboard.putNumber("Robot", speed);
+
+        ChassisSpeeds cSpeeds = new ChassisSpeeds(speed, 0, 0);
+        
+        driveSub.drive(cSpeeds);
+    }
+    else
+    {
+      tilting = false;
+    }
+
+    if (controller.getBButton() == true)
+    {
+      //controller.setP(SmartDashboard.getNumber("PID", 0.1));
+    }
   }
 }

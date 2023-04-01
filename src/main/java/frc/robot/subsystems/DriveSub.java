@@ -9,6 +9,7 @@ import frc.robot.swervelib.MkSwerveModuleBuilder;
 import frc.robot.swervelib.SwerveModule;
 import frc.robot.swervelib.SdsModuleConfigurations;
 import frc.robot.swervelib.MotorType;
+import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
@@ -43,8 +44,8 @@ public class DriveSub extends SubsystemBase {
   private final SwerveModule m_backLeftModule;
   private final SwerveModule m_backRightModule;
 
-  // Define Odometry subsystem for the SDS
-  private final SwerveDriveOdometry m_Odometry;
+  // Pose estimator for tracking robotic pose. Replaces odometry object 
+  private final SwerveDrivePoseEstimator m_PoseEstimator;
 
   ShuffleboardTab tab = Shuffleboard.getTab("Drivetrain");
 
@@ -94,17 +95,17 @@ public class DriveSub extends SubsystemBase {
                                            .withSteerOffset(BACK_RIGHT_MODULE_STEER_OFFSET)
                                            .build();
 
-    zeroGyroscope();                                       
+    zeroGyroscope();                  
+    
+    m_PoseEstimator = new SwerveDrivePoseEstimator(kRobotKinematics, 
+                                                   getGyroscopeRotation(), 
+                                                   new SwerveModulePosition[]{
+                                                    m_frontLeftModule.getPosition(), 
+                                                    m_frontRightModule.getPosition(),
+                                                    m_backLeftModule.getPosition(), 
+                                                    m_backRightModule.getPosition()}, 
+                                                    startPose);
 
-    // Initialize the odometry to one of the starting point defined in MotionConstants
-    m_Odometry = new SwerveDriveOdometry(kRobotKinematics, 
-                                         getGyroscopeRotation(), 
-                                         new SwerveModulePosition[]{
-                                         m_frontLeftModule.getPosition(), 
-                                         m_frontRightModule.getPosition(),
-                                         m_backLeftModule.getPosition(), 
-                                         m_backRightModule.getPosition()}, 
-                                         startPose);
 
     tab.getLayout("Localization", BuiltInLayouts.kList)
                   .withSize(2, 4)
@@ -114,7 +115,7 @@ public class DriveSub extends SubsystemBase {
     tab.getLayout("Localization", BuiltInLayouts.kList)
                 .withSize(2, 4)
                 .withPosition(1, 1)
-                .addString("Odometry", ()->m_Odometry.getPoseMeters().getTranslation().toString());
+                .addString("Odometry", ()->m_PoseEstimator.getEstimatedPosition().getTranslation().toString());
   }
 
   /**
@@ -141,7 +142,7 @@ public class DriveSub extends SubsystemBase {
   // Gets the current pose from the Odometry Subsystem
   public Pose2d getCurrentPose2d()
   {
-    return m_Odometry.getPoseMeters();
+    return m_PoseEstimator.getEstimatedPosition();
   }
 
   // Set the current Pose of the robot
@@ -160,13 +161,14 @@ public class DriveSub extends SubsystemBase {
   // rReset the Pose of the robot
   public void resetPose(Pose2d currentPose)
   {
-    m_Odometry.resetPosition(getGyroscopeRotation(), 
-                             new SwerveModulePosition[]{
-                              m_frontLeftModule.getPosition(), 
-                              m_frontRightModule.getPosition(), 
-                              m_backLeftModule.getPosition(), 
-                              m_backRightModule.getPosition()}, 
-                              currentPose);
+    m_PoseEstimator.resetPosition(getGyroscopeRotation(), 
+                                  new SwerveModulePosition[]{
+                                    m_frontLeftModule.getPosition(), 
+                                    m_frontRightModule.getPosition(), 
+                                    m_backLeftModule.getPosition(), 
+                                    m_backRightModule.getPosition()}, 
+                                    currentPose);
+
   }
 
   public double getRoll()
@@ -185,7 +187,7 @@ public class DriveSub extends SubsystemBase {
     SwerveModuleState[] states = kRobotKinematics.toSwerveModuleStates(m_chassisSpeeds);
 
     // We just read the current states of the Swerve Modules, so update the Odometry as well
-    m_Odometry.update(getGyroscopeRotation(), 
+    m_PoseEstimator.update(getGyroscopeRotation(), 
                       new SwerveModulePosition[]{
                         m_frontLeftModule.getPosition(), 
                         m_frontRightModule.getPosition(), 
