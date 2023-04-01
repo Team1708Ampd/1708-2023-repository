@@ -126,7 +126,7 @@ public class AutoManager  {
             @Override
             public String toString()
             {
-                return "CompetitionPath2";
+                return "WorkingAuto3-31";
             }
         },
         BLUE3PARK{
