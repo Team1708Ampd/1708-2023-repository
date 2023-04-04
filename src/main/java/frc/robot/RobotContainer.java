@@ -51,6 +51,7 @@ import frc.robot.commands.OuttakeCommand;
 import frc.robot.commands.PlatformBalanceCommand;
 import frc.robot.commands.ResetFOD;
 import frc.robot.commands.TiltArmCommand;
+import frc.robot.commands.zeroGyro;
 import frc.robot.commands.OuttakeAutoCommand;
 
 /**
@@ -76,32 +77,19 @@ public class RobotContainer {
   private SendableChooser<Integer> autoChooser;
   private SendableChooser<Integer> teamChooser;
   private boolean tilting = false;
+  double speed = -1;
 
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
-
-   
+    // Init the routines manager 
+    initCompetitionShuffleboard();  
 
     // init the robot arm so nothing breaks
-    initRobotArm();
-    // Init the routines manager 
-    initCompetitionShuffleboard();
-
-     // Init Camera
-     s_camSub = new CameraSub(driveSub, getTeamSelecton());
-
-    driveSub.setDefaultCommand(new DriveCommand(
-      driveSub,
-      () -> -modifyAxis(controller.getLeftY()) * DriveConstants.MAX_VELOCITY_METERS_PER_SECOND,
-      () -> -modifyAxis(controller.getLeftX()) * DriveConstants.MAX_VELOCITY_METERS_PER_SECOND,
-      () -> -modifyAxis(controller.getRightX()) * DriveConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND
-    ));
- 
-
-    // Configure the button bindings
-    configureButtonBindings();
+    initRobotSubs();        
     
+    // Configure the button bindings
+    configureButtonBindings();    
   }
 
   /**
@@ -124,8 +112,8 @@ public class RobotContainer {
     new JoystickTrigger(controller2, XboxController.Axis.kRightTrigger.value).whileTrue(new ManualArmDown(s_ArmRotation));
     AprilTag targetTag = s_camSub.GetAprilTagFromID(6);
 
-    //new JoystickButton(controller, XboxController.Button.kA.value).onTrue(new PlatformBalanceCommand(driveSub));
-
+    new JoystickButton(controller, XboxController.Button.kA.value).onTrue(new PlatformBalanceCommand(driveSub));
+    new JoystickButton(controller, XboxController.Button.kB.value).onTrue(new zeroGyro(driveSub));
   }
 
   /**
@@ -142,7 +130,6 @@ public class RobotContainer {
     {
       SequentialCommandGroup autoCMD = new SequentialCommandGroup(new TiltArmCommand(1, true, s_ArmRotation), 
                                                                   new OuttakeAutoCommand(s_intake));
-
       return autoCMD;
     }
     else
@@ -173,8 +160,16 @@ public class RobotContainer {
     return value;
   }
 
-  private void initRobotArm()
+  private void initRobotSubs()
   {
+    /******** CREATE DRIVE **********/
+    driveSub.setDefaultCommand(new DriveCommand(
+      driveSub,
+      () -> -modifyAxis(controller.getLeftY()) * DriveConstants.MAX_VELOCITY_METERS_PER_SECOND,
+      () -> -modifyAxis(controller.getLeftX()) * DriveConstants.MAX_VELOCITY_METERS_PER_SECOND,
+      () -> -modifyAxis(controller.getRightX()) * DriveConstants.MAX_ANGULAR_VELOCITY_RADIANS_PER_SECOND
+    )); 
+
     /******** CREATE ARM **********/
 
     //Create the config for the motors. Each are equally matched here. Defaults taken from documentation
@@ -191,11 +186,12 @@ public class RobotContainer {
     cancoderConfig.sensorDirection = Direction.CLOCKWISE == ArmConstants.ARM_DIRECTION;
     cancoderConfig.initializationStrategy = SensorInitializationStrategy.BootToAbsolutePosition;
     
-
+    // Arm Rotation
     s_ArmRotation = new ArmRotationSub(8, 9, 4)
                           .withTalonConfig(armConfig)
                           .withEncoderConfiguration(cancoderConfig);
 
+    // Arm Extension
     s_ArmTele = new ArmTelescopingSub(10)
                       .withTalonConfig(armConfig);
 
@@ -205,12 +201,13 @@ public class RobotContainer {
 
     s_wrist = new WristSub(12);
 
+    /******** CREATE CAMERA **********/
+    s_camSub = new CameraSub(driveSub, getTeamSelecton());
   }
 
   private void initAutoRoutines()
   {
-    AprilTag targetTag = s_camSub.GetAprilTagFromID(0);
-    double autoSpeed = 4;
+    double autoSpeed = 2;
     m_MotionControl = new MotionControl()
       .withTranslationPIDConstants(new PIDConstants(AutoConstants.kPIDXController, 0, 0))
       .withAngularPIDConstants(new PIDConstants(AutoConstants.kPIDThetaController, 0, 0))
@@ -220,36 +217,26 @@ public class RobotContainer {
 
     if (autoR != AutoRoutine.BASIC)
     {
-
-      if ((autoR == AutoRoutine.BLUE1PARK) && (getTeamSelecton() == TeamColor.RED))
-      {
-        autoSpeed = 2;
-      }
-      if ((autoR == AutoRoutine.BLUE3PARK) && (getTeamSelecton() == TeamColor.BLUE))
-      {
-        autoSpeed = 2;
-      }
-
       HashMap<String, Command> eventsMap = new HashMap<>();
       eventsMap.put("balance", new PlatformBalanceCommand(driveSub));
-      //eventsMap.put("balance", new NavigateToAprilTagCommand(s_camSub, driveSub, targetTag));
       eventsMap.put("outtake", new OuttakeAutoCommand(s_intake));
       eventsMap.put("tiltArm", new TiltArmCommand(0, true, s_ArmRotation));
       eventsMap.put("pickArmMove", new TiltArmCommand(2.3, false, s_ArmRotation));
-
+      eventsMap.put("zeroGyro", new zeroGyro(driveSub));
+      
       m_AutoManager = new AutoManager(getTeamSelecton(), autoR)
                               .withMotionControl(m_MotionControl)
                               .withEventMap(eventsMap)
-                              .withMaxSpeed(2);
+                              .withMaxSpeed(autoSpeed);
     }      
   }
 
   private void initCompetitionShuffleboard()
   {
     autoChooser = new SendableChooser<Integer>();
-    autoChooser.setDefaultOption("Auto 1", 1);
-    autoChooser.addOption("Auto 2", 2);
-    autoChooser.addOption("Auto 3", 3);
+    autoChooser.setDefaultOption("Left", 1);
+    autoChooser.addOption("Center", 2);
+    autoChooser.addOption("Right", 3);
     autoChooser.addOption("Basic", 4);
 
     teamChooser = new SendableChooser<Integer>();
@@ -280,6 +267,7 @@ public class RobotContainer {
       case 3:
       routine = AutoRoutine.BLUE3PARK;
       break;
+
       default:
       routine = AutoRoutine.BASIC;
       break;
@@ -308,50 +296,5 @@ public class RobotContainer {
     }
 
     return team;
-  }
-
-  public void debugBalance()
-  {
-    SmartDashboard.putNumber("PID", 0.1);
-    SmartDashboard.putNumber("ANGLE", 13);
-    double speed = 1;
-
-    if (controller.getAButton() == true)
-    {
-      if (!tilting && Math.abs(driveSub.getRoll()) > 15)
-        {
-            tilting = true;
-            //startTime = Timer.getFPGATimestamp();    
-            System.out.println("At ramp pitch");       
-        }
-        if (tilting)
-        {
-          if (Math.abs(driveSub.getRoll()) > SmartDashboard.getNumber("ANGLE", 13))
-          {
-            speed = 1;
-          }
-          else
-          {
-            //speed = controller.calculate(Math.abs(driveSub.getRoll()));
-            System.out.println("Balancing"); 
-          }
-            
-        }
-        System.out.printf("Robot Roll %f\n", driveSub.getRoll());
-        SmartDashboard.putNumber("Robot", speed);
-
-        ChassisSpeeds cSpeeds = new ChassisSpeeds(speed, 0, 0);
-        
-        driveSub.drive(cSpeeds);
-    }
-    else
-    {
-      tilting = false;
-    }
-
-    if (controller.getBButton() == true)
-    {
-      //controller.setP(SmartDashboard.getNumber("PID", 0.1));
-    }
   }
 }

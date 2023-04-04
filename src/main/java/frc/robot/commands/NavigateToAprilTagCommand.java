@@ -27,10 +27,10 @@ public class NavigateToAprilTagCommand extends CommandBase{
     AprilTag navTag;
 
     // PID controller for strafing
-    PIDController strafeController = new PIDController(0.12, 0, 0);
+    PIDController strafeController = new PIDController(0.25, 0, 0);
 
     // PID Controller for range
-    PIDController rangeController = new PIDController(0.12, 0, 0);
+    PIDController rangeController = new PIDController(0.25, 0, 0);
 
 
     double MIN_MOTOR_EFFORT = 0.05;
@@ -79,20 +79,20 @@ public class NavigateToAprilTagCommand extends CommandBase{
 
             // Now calculate the next state of the drive output from both PID Controllers
             double strafeV = modifyAxis(strafeController.calculate(xError));
-            double rangeV = modifyAxis(strafeController.calculate(-yError));
-            double turn = modifyAxis(thetaError * 1.5);
+            double rangeV = modifyAxis(strafeController.calculate(yError));
+            //double turn = modifyAxis(thetaError * 1.5);
 
             SmartDashboard.putNumber("Lime X Error", strafeV);
             SmartDashboard.putNumber("Lime Y Error", rangeV);
-            SmartDashboard.putNumber("Rotation Error", turn);
+            //SmartDashboard.putNumber("Rotation Error", turn);
 
             
                       
 
-            drive.drive(ChassisSpeeds.fromFieldRelativeSpeeds(
-                strafeV,
+            drive.drive(ChassisSpeeds.fromFieldRelativeSpeeds(                
                 rangeV,
-                turn,
+                strafeV,
+                0,
                 drive.getGyroscopeRotation()
             ));
         }

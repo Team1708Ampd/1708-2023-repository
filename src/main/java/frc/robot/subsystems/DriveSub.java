@@ -181,6 +181,11 @@ public class DriveSub extends SubsystemBase {
     return m_pigeon.getPitch();
   }
 
+  public void resetHeading(double newHeading)
+  {
+    m_pigeon.setYaw(newHeading);
+  }
+
 
   @Override
   public void periodic() {

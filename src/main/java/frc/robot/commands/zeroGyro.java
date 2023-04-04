@@ -9,12 +9,12 @@ import frc.robot.Robot;
 import frc.robot.subsystems.DriveSub;
 import frc.robot.subsystems.IntakeSub;
 
-public class ResetFOD extends CommandBase {
+public class zeroGyro extends CommandBase {
   // Intake subsystem
   DriveSub drive;
 
   /** Creates a new InvertIntake. */
-  public ResetFOD(DriveSub driveS) {
+  public zeroGyro(DriveSub driveS) {
 
     drive = driveS;
 
@@ -23,14 +23,8 @@ public class ResetFOD extends CommandBase {
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {
-    // Just get the current gyroscope angle and add 180 
-    double currentGyro = drive.getGyroscopeRotation().getDegrees();
-
-    // Add 180 
-    currentGyro -= 180;
-    drive.resetHeading(currentGyro);
-
+  public void initialize() { 
+    drive.zeroGyroscope();
   }
 
   // Called every time the scheduler runs while the command is scheduled.

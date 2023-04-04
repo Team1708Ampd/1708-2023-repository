@@ -119,21 +119,21 @@ public class AutoManager  {
             @Override
             public String toString()
             {
-                return "CompetitionPath1";
+                return "LeftSideBlueAuto4-4";
             }
         },
         BLUE2PARK{
             @Override
             public String toString()
             {
-                return "WorkingAuto3-31";
+                return "CenterBlue4-4";
             }
         },
         BLUE3PARK{
             @Override
             public String toString()
             {
-                return "CompetitionPath3";
+                return "RightSideBlueAuto4-4";
             }
         },
         BASIC{

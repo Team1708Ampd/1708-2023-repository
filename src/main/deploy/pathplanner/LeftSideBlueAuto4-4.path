@@ -10,7 +10,7 @@
         "x": 2.93154017886983,
         "y": 4.425268148781912
       },
-      "holonomicAngle": 0.0,
+      "holonomicAngle": 180.0,
       "isReversal": false,
       "velOverride": null,
       "isLocked": false,
@@ -38,7 +38,7 @@
         "x": 3.9290491914317163,
         "y": 4.570360368790913
       },
-      "holonomicAngle": 0.0,
+      "holonomicAngle": 180.0,
       "isReversal": false,
       "velOverride": null,
       "isLocked": false,
@@ -56,11 +56,14 @@
         "y": 4.6157016875437265
       },
       "prevControl": {
-        "x": 4.875437259646451,
+        "x": 6.3296480978926875,
         "y": 4.6157016875437265
       },
-      "nextControl": null,
-      "holonomicAngle": 0,
+      "nextControl": {
+        "x": 6.38619840707909,
+        "y": 4.6157016875437265
+      },
+      "holonomicAngle": 180.0,
       "isReversal": false,
       "velOverride": null,
       "isLocked": false,
@@ -69,6 +72,56 @@
         "names": [
           "armPickMove",
           "intakePiece"
+        ],
+        "executionBehavior": "sequential",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
+    },
+    {
+      "anchorPoint": {
+        "x": 6.374989416645501,
+        "y": 3.0106190036941483
+      },
+      "prevControl": {
+        "x": 6.3376000073609715,
+        "y": 3.0106190036941483
+      },
+      "nextControl": {
+        "x": 6.41237882593003,
+        "y": 3.0106190036941483
+      },
+      "holonomicAngle": 180.0,
+      "isReversal": false,
+      "velOverride": null,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [],
+        "executionBehavior": "parallel",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
+    },
+    {
+      "anchorPoint": {
+        "x": 5.39561693158474,
+        "y": 2.992482476193023
+      },
+      "prevControl": {
+        "x": 4.879342748716219,
+        "y": 2.992482476193023
+      },
+      "nextControl": null,
+      "holonomicAngle": 180.0,
+      "isReversal": false,
+      "velOverride": null,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [
+          "balance",
+          "zeroGyro"
         ],
         "executionBehavior": "sequential",
         "waitBehavior": "none",

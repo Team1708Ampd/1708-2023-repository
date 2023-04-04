@@ -16,11 +16,11 @@ public class PlatformBalanceCommand extends CommandBase{
     DriveSub drive;
 
     // PID Controller for controller the robot
-    PIDController controller = new PIDController(0.01, 0, 0);
+    PIDController controller;
 
     // Helper variables
     private int balanceCounter;
-    private boolean tilting;
+    private boolean tilting;    
     
     // Constructor for specifying the drive
     public PlatformBalanceCommand(DriveSub drv)
@@ -28,6 +28,8 @@ public class PlatformBalanceCommand extends CommandBase{
         // Get the drive
         drive = drv;
         addRequirements(drv);
+        SmartDashboard.putNumber("ANGLE", 14.4);
+        SmartDashboard.putNumber("PID", 0.1);
     }
 
     @Override 
@@ -35,6 +37,7 @@ public class PlatformBalanceCommand extends CommandBase{
     {
         balanceCounter = 0;
         tilting = false;
+        controller = new PIDController(SmartDashboard.getNumber("PID", 0.1), 0, 0);
 
         // Init the PIDController
         controller.reset();
@@ -43,11 +46,10 @@ public class PlatformBalanceCommand extends CommandBase{
         System.out.println("Initialized Balance");  
     }
 
-
     @Override
     public void execute()
     {
-        double speed = -1;
+        double speed = 1;
         if (!tilting && Math.abs(drive.getRoll()) > 15)
         {
             tilting = true;
@@ -56,9 +58,9 @@ public class PlatformBalanceCommand extends CommandBase{
         }
         if (tilting)
         {
-          if (Math.abs(drive.getRoll()) > 14)
+          if (Math.abs(drive.getRoll()) > SmartDashboard.getNumber("ANGLE", 14.4))
           {
-            speed = -1;
+            speed = 1;
           }
           else
           {

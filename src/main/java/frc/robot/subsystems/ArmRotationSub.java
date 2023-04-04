@@ -207,19 +207,6 @@ public class ArmRotationSub extends SubsystemBase {
     return FFkV;
   }
 
-  //Method to print out debug info for the two Arm motors
-  public void debugMotors() {
-      System.out.println(armMotor1.getSelectedSensorPosition());      // prints the position of the selected sensor
-      System.out.println(armMotor1.getSelectedSensorVelocity());      // prints the velocity recorded by the selected sensor
-      System.out.println(armMotor1.getMotorOutputPercent());          // prints the percent output of the motor (0.5)
-      System.out.println(armMotor1.getStatorCurrent());               // prints the output current of the motor
-      
-      System.out.println(armMotor2.getSelectedSensorPosition());      // prints the position of the selected sensor
-      System.out.println(armMotor2.getSelectedSensorVelocity());      // prints the velocity recorded by the selected sensor
-      System.out.println(armMotor2.getMotorOutputPercent());          // prints the percent output of the motor (0.5)
-      System.out.println(armMotor2.getStatorCurrent());               // prints the output current of the motor
-  }
-
   private void useMotorConfig(TalonFXConfiguration config)
   {
       CtreUtils.checkCtreError(armMotor1.configAllSettings(config), "Failed to configure Falcon 500: ArmMotor1");
