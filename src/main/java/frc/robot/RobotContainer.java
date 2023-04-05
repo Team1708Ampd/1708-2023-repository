@@ -12,6 +12,7 @@ import com.ctre.phoenix.sensors.CANCoderConfiguration;
 import com.ctre.phoenix.sensors.SensorInitializationStrategy;
 import com.pathplanner.lib.auto.PIDConstants;
 import frc.robot.swervelib.ctre.CanCoderFactoryBuilder.Direction;
+import pabeles.concurrency.ConcurrencyOps.Reset;
 import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.cameraserver.CameraServer;
@@ -220,9 +221,9 @@ public class RobotContainer {
       HashMap<String, Command> eventsMap = new HashMap<>();
       eventsMap.put("balance", new PlatformBalanceCommand(driveSub));
       eventsMap.put("outtake", new OuttakeAutoCommand(s_intake));
-      eventsMap.put("tiltArm", new TiltArmCommand(0, true, s_ArmRotation));
+      eventsMap.put("tiltArm", new TiltArmCommand(1, true, s_ArmRotation));
       eventsMap.put("pickArmMove", new TiltArmCommand(2.3, false, s_ArmRotation));
-      eventsMap.put("zeroGyro", new zeroGyro(driveSub));
+      eventsMap.put("zeroGyro", new ResetFOD(driveSub));
       
       m_AutoManager = new AutoManager(getTeamSelecton(), autoR)
                               .withMotionControl(m_MotionControl)
