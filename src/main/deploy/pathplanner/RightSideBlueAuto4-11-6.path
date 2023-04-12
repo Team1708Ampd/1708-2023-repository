@@ -10,7 +10,7 @@
         "x": 2.91430737943033,
         "y": 1.0518740335726287
       },
-      "holonomicAngle": 180.0,
+      "holonomicAngle": 0.0,
       "isReversal": false,
       "velOverride": null,
       "isLocked": false,
@@ -38,7 +38,7 @@
         "x": 4.056004883939593,
         "y": 0.9611913960670033
       },
-      "holonomicAngle": 180.0,
+      "holonomicAngle": 0.0,
       "isReversal": false,
       "velOverride": null,
       "isLocked": false,
@@ -59,11 +59,8 @@
         "x": 6.356852889144376,
         "y": 0.9430548685658775
       },
-      "nextControl": {
-        "x": 6.3861984070790925,
-        "y": 0.9430548685658775
-      },
-      "holonomicAngle": 180.0,
+      "nextControl": null,
+      "holonomicAngle": 0.0,
       "isReversal": false,
       "velOverride": null,
       "isLocked": false,
@@ -74,60 +71,20 @@
         "waitBehavior": "none",
         "waitTime": 0
       }
-    },
-    {
-      "anchorPoint": {
-        "x": 6.411262471647751,
-        "y": 2.203543529894078
-      },
-      "prevControl": {
-        "x": 6.398438010064529,
-        "y": 2.203543529894078
-      },
-      "nextControl": {
-        "x": 6.4497358563974165,
-        "y": 2.203543529894078
-      },
-      "holonomicAngle": 180.0,
-      "isReversal": false,
-      "velOverride": null,
-      "isLocked": false,
-      "isStopPoint": false,
-      "stopEvent": {
-        "names": [
-          "balance",
-          "resetgyro"
-        ],
-        "executionBehavior": "sequential",
-        "waitBehavior": "none",
-        "waitTime": 0
-      }
-    },
-    {
-      "anchorPoint": {
-        "x": 5.368412140333054,
-        "y": 2.2126117936446406
-      },
-      "prevControl": {
-        "x": 5.3321390853308035,
-        "y": 2.2126117936446406
-      },
-      "nextControl": null,
-      "holonomicAngle": 180.0,
-      "isReversal": false,
-      "velOverride": null,
-      "isLocked": false,
-      "isStopPoint": false,
-      "stopEvent": {
-        "names": [
-          "balance",
-          "zeroGyro"
-        ],
-        "executionBehavior": "sequential",
-        "waitBehavior": "none",
-        "waitTime": 0
-      }
     }
   ],
-  "markers": []
+  "markers": [
+    {
+      "position": 0.8181818181818195,
+      "names": [
+        "collectPiece"
+      ]
+    },
+    {
+      "position": 1.6545454545454514,
+      "names": [
+        "intake"
+      ]
+    }
+  ]
 }

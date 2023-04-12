@@ -4,32 +4,27 @@ import edu.wpi.first.math.controller.ArmFeedforward;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.subsystems.ArmRotationSub;
+import frc.robot.subsystems.WristSub;
 
-public class ArmSetPositionCommand extends CommandBase{
-
-    // Feed forward controller
-    private ArmFeedforward ffController;
+public class WristSetPositionCommand extends CommandBase{
 
     // PID Controller 
     private PIDController pidController;
 
     // Arm Rotation Subsystem
-    private ArmRotationSub armSubsystem;
+    private WristSub armSubsystem;
 
     // PID constants
     private double kP, kI, kD;
 
-    // Feed Forward Constants
-    private double kV, kG;
-
     // Target angle for the command
     private double targetAngle = 0;
 
+    boolean useSuppliedConstants = false;
+
     boolean debug = false;
 
-
-    public ArmSetPositionCommand(ArmRotationSub rotSubsystem, double newAngle, boolean db)
+    public WristSetPositionCommand(WristSub rotSubsystem, double newAngle, boolean db)
     {
         armSubsystem = rotSubsystem;
         targetAngle = newAngle;
@@ -37,13 +32,13 @@ public class ArmSetPositionCommand extends CommandBase{
 
         if (db)
         {
-            SmartDashboard.putNumber("ARMKP", 0.1);
-            SmartDashboard.putNumber("ARMKI", 0.1);
-            SmartDashboard.putNumber("ARMKD", 0.1);
-            SmartDashboard.putNumber("ARMTARGETANGLE", 30);      
-            SmartDashboard.putNumber("ARMCURRENTANGLE", 0);      
+            SmartDashboard.putNumber("WRISTKP", 0.1);
+            SmartDashboard.putNumber("WRISTKI", 0.1);
+            SmartDashboard.putNumber("WRISTD", 0.1);
+            SmartDashboard.putNumber("WRISTTARGETANGLE", 30);      
+            SmartDashboard.putNumber("WRISTCURRENTANGLE", 0);      
         }
-        
+
         // Add the subsystem as a requirement
         addRequirements(rotSubsystem);        
     }
@@ -53,36 +48,31 @@ public class ArmSetPositionCommand extends CommandBase{
 
         if (debug)
         {
-            kP = SmartDashboard.getNumber("ARMKP", 0.1);
-            kI = SmartDashboard.getNumber("ARMKI", 0.1);
-            kD = SmartDashboard.getNumber("ARMKD", 0.1);
-            targetAngle = SmartDashboard.getNumber("ARMTARGETANGLE", 30);
+            kP = SmartDashboard.getNumber("WRISTKP", 0.1);
+            kI = SmartDashboard.getNumber("WRISTKI", 0.1);
+            kD = SmartDashboard.getNumber("WRISTKD", 0.1);
+            targetAngle = SmartDashboard.getNumber("WRISTTARGETANGLE", 30);
         }
         else
         {
-            kP = 0.05;
-            kI = 0.00;
-            kD = 0.00;
+            kP = 1.0;
+            kI = 0.0;
+            kD = 0.0;
         }
 
         // Init the controllers. PID gets a tolerance
         pidController = new PIDController(kP, kI, kD);
         pidController.disableContinuousInput();
-        pidController.setTolerance(Math.toRadians(0.5));
-
-
-        ffController = new ArmFeedforward(0, kG, kV);
+        pidController.setTolerance(4.0);
 
         // Get the first calculation and set the motors to start moving
         pidController.setSetpoint(targetAngle);
-        pidController.setTolerance(3.0);
 
         // First iteration only uses feed forward to do the adjustment. All other iterations will feed back
-        double output = (ffController.calculate(targetAngle, 1, 1) +
-                         pidController.calculate(targetAngle));
+        double output = (pidController.calculate(targetAngle));
 
         // Set the output
-        armSubsystem.setArmOutput(output);
+        armSubsystem.setWrist(output);
     }
 
     // Execute override
@@ -90,15 +80,16 @@ public class ArmSetPositionCommand extends CommandBase{
     public void execute()
     {
         // Get the current angle of the Arm Subsystem
-        double currentAngle = armSubsystem.getArmAngle();
+        double currentAngle = armSubsystem.getWristPosition();
 
         // Read the current arm angle and feedback
-        armSubsystem.setArmOutput(pidController.calculate(currentAngle));
+        armSubsystem.setWrist(pidController.calculate(currentAngle));
 
         if (debug)
         {
-            SmartDashboard.putNumber("ARMCURRENTANGLE", currentAngle);
+            SmartDashboard.putNumber("WRISTCURRENTANGLE", currentAngle);
         }
+
     }
 
     // End override
@@ -106,16 +97,15 @@ public class ArmSetPositionCommand extends CommandBase{
     public void end(boolean interrupted)
     {
         // Set the arm output to no power
-        armSubsystem.setArmOutput(0);
+        armSubsystem.setWrist(0);
     }
 
-    public ArmSetPositionCommand withControlConstants(double newkP, double newkI, double newkD, double newffV, double newffG)
+    public WristSetPositionCommand withControlConstants(double newkP, double newkI, double newkD)
     {
+        useSuppliedConstants = true;
         kP = newkP;
         kI = newkI;
         kD = newkD;
-        kV = newffV;
-        kG = newffG;
         return this;
     }
 
@@ -125,5 +115,6 @@ public class ArmSetPositionCommand extends CommandBase{
     {
         // Finish when the PID tolerance limit is met        
         return pidController.atSetpoint();
-    }    
+    }
+    
 }

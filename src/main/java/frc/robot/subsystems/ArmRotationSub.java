@@ -20,7 +20,6 @@ import static frc.robot.Constants.*;
 public class ArmRotationSub extends SubsystemBase {
     
   private TalonFX armMotor1;
-  private TalonFX armMotor2;
   private CANCoder armEncoder;
 
   // PID configuration
@@ -44,12 +43,11 @@ public class ArmRotationSub extends SubsystemBase {
 
 
   // Constructor just taking motor and encoder IDS
-  public ArmRotationSub(int talonDeviceNum1, int talonDeviceNum2, int encoderNum)
+  public ArmRotationSub(int talonDeviceNum1, int encoderNum)
   {
     //Create the Two TalonFx Motors to drive the Arm
     // TalonFX armMotor1 = new TalonFX(talonDeviceNum1, "ArmMotor1");
     armMotor1 = new TalonFX(talonDeviceNum1);
-    armMotor2 = new TalonFX(talonDeviceNum2);
 
     armEncoder = new CANCoder(encoderNum);
 
@@ -57,11 +55,10 @@ public class ArmRotationSub extends SubsystemBase {
 
     /// Initialize to 0 power output. Use direct set to make sure Arm start at 0!
     armMotor1.set(TalonFXControlMode.PercentOutput, 0.0);
-    armMotor2.set(TalonFXControlMode.PercentOutput, 0.0);
   }
 
   // Constructor taking device IDs and motor configuration
-  public ArmRotationSub(int talonDeviceNum1, int talonDeviceNum2, int encoderNum, TalonFXConfiguration motorConfig) {
+  public ArmRotationSub(int talonDeviceNum1, int encoderNum, TalonFXConfiguration motorConfig) {
       
     //Components / Notes:
     // Two Falcon Fx Talon 500 that work together to drive the Arm angle. 
@@ -74,7 +71,6 @@ public class ArmRotationSub extends SubsystemBase {
     //Create the Two TalonFx Motors to drive the Arm
     // TalonFX armMotor1 = new TalonFX(talonDeviceNum1, "ArmMotor1");
     armMotor1 = new TalonFX(talonDeviceNum1);
-    armMotor2 = new TalonFX(talonDeviceNum2);
 
     armEncoder = new CANCoder(4);
 
@@ -82,7 +78,6 @@ public class ArmRotationSub extends SubsystemBase {
     
     /// Initialize to 0 power output. Use direct set to make sure Arm start at 0!
     armMotor1.set(TalonFXControlMode.PercentOutput, 0.0);
-    armMotor2.set(TalonFXControlMode.PercentOutput, 0.0);
   }
 
   @Override
@@ -92,7 +87,6 @@ public class ArmRotationSub extends SubsystemBase {
 
     // Update the motor outputs to the current desired output value
     armMotor1.set(TalonFXControlMode.PercentOutput, armOutRequested);
-    armMotor2.set(TalonFXControlMode.PercentOutput, armOutRequested);
 
     // Update the current position of the Arm
     //armPositionCurrent = Rotation2d.fromRadians(getArmAngle());
@@ -140,9 +134,7 @@ public class ArmRotationSub extends SubsystemBase {
     else
     {
       armOutRequested = power;
-    }
-    // Set the requested output power of the motor
-    ;
+    }  
   }
 
   // Get the current position of the encoder attached to the arm 
@@ -168,7 +160,7 @@ public class ArmRotationSub extends SubsystemBase {
     //     angle += 2.0 * Math.PI;
     // }
 
-    return angle;
+    return Math.toDegrees(angle);
   }
 
   // Get the current Arm Angle Reported internally to the Arm
@@ -210,7 +202,6 @@ public class ArmRotationSub extends SubsystemBase {
   private void useMotorConfig(TalonFXConfiguration config)
   {
       CtreUtils.checkCtreError(armMotor1.configAllSettings(config), "Failed to configure Falcon 500: ArmMotor1");
-      CtreUtils.checkCtreError(armMotor2.configAllSettings(config), "Failed to configure Falcon 500: ArmMotor2");
   }
 
   private void useEncoderConfig(CANCoderConfiguration cancoderConfig)
@@ -224,6 +215,5 @@ public class ArmRotationSub extends SubsystemBase {
   private void setMotorNeutralMode(NeutralMode mode)
   {
     armMotor1.setNeutralMode(mode);
-    armMotor2.setNeutralMode(mode);
   }
 }

@@ -35,5 +35,9 @@ public final class DriveConstants {
         new Translation2d(-Constants.DRIVETRAIN_TRACKWIDTH_METERS / 2.0, -Constants.DRIVETRAIN_WHEELBASE_METERS / 2.0)
   );
 
+  public static double mm_CRUISE_VELOCITY_CONSTANT = 15000;
+
+  public static double mm_ACCELERATION_CONSTANT = 6000;
+
 
 }

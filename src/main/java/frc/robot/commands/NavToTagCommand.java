@@ -15,7 +15,7 @@ import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.CameraSub;
 import frc.robot.subsystems.DriveSub;
 
-public class NavigateToAprilTagCommand extends CommandBase{
+public class NavToTagCommand extends CommandBase{
 
     // Camera 
     CameraSub camera;
@@ -27,19 +27,32 @@ public class NavigateToAprilTagCommand extends CommandBase{
     AprilTag navTag;
 
     // PID controller for strafing
-    PIDController strafeController = new PIDController(0.25, 0, 0);
+    PIDController strafeController;
 
     // PID Controller for range
-    PIDController rangeController = new PIDController(0.25, 0, 0);
+    PIDController rangeController;
 
+    boolean debug = false;
 
     double MIN_MOTOR_EFFORT = 0.05;
 
-    public NavigateToAprilTagCommand(CameraSub cam, DriveSub drv, AprilTag tag)
+    public NavToTagCommand(CameraSub cam, DriveSub drv, AprilTag tag, boolean db)
     {
         camera = cam;
         drive = drv;
         navTag = tag;
+        debug = db;
+
+        if (db)
+        {
+            SmartDashboard.putNumber("RANGEKP", 0.1);
+            SmartDashboard.putNumber("RANGEKI", 0.1);
+            SmartDashboard.putNumber("RANGEKD", 0.1);
+
+            SmartDashboard.putNumber("STRAFEKP", 0.1);
+            SmartDashboard.putNumber("STRAFEKI", 0.1);
+            SmartDashboard.putNumber("STRAFEKD", 0.1);
+        }
 
         addRequirements(cam);
         addRequirements(drv);
@@ -52,6 +65,22 @@ public class NavigateToAprilTagCommand extends CommandBase{
     @Override
     public void initialize()
     {
+        if (debug)
+        {
+            rangeController = new PIDController (SmartDashboard.getNumber("RANGEKP", 0.1),
+                                                 SmartDashboard.getNumber("RANGEKI", 0.1),
+                                                 SmartDashboard.getNumber("RANGEKD", 0.1));
+
+            strafeController = new PIDController(SmartDashboard.getNumber("STRAFEKP", 0.1),
+                                                 SmartDashboard.getNumber("STRAFEKI", 0.1),
+                                                 SmartDashboard.getNumber("STRAFEKD", 0.1));
+        }
+        else
+        {
+           rangeController = new PIDController(0.25, 0, 0);
+           strafeController = new PIDController(0.25, 0, 0);
+        }
+
         // Set the setpoint and tolerance for each PID Controller
         strafeController.setSetpoint(0); // TODO figure out setpoint
         strafeController.setTolerance(0.1); // TODO figure out tolerance
@@ -82,12 +111,11 @@ public class NavigateToAprilTagCommand extends CommandBase{
             double rangeV = modifyAxis(strafeController.calculate(yError));
             //double turn = modifyAxis(thetaError * 1.5);
 
-            SmartDashboard.putNumber("Lime X Error", strafeV);
-            SmartDashboard.putNumber("Lime Y Error", rangeV);
-            //SmartDashboard.putNumber("Rotation Error", turn);
-
-            
-                      
+            if (debug)
+            {
+                SmartDashboard.putNumber("Lime X Error", strafeV);
+                SmartDashboard.putNumber("Lime Y Error", rangeV);
+            }        
 
             drive.drive(ChassisSpeeds.fromFieldRelativeSpeeds(                
                 rangeV,
