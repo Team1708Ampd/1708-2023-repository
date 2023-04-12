@@ -14,6 +14,7 @@ import com.pathplanner.lib.auto.PIDConstants;
 import frc.robot.swervelib.ctre.CanCoderFactoryBuilder.Direction;
 import edu.wpi.first.apriltag.AprilTag;
 import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -32,6 +33,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.button.POVButton;
 import frc.robot.subsystems.ArmRotationSub;
 import frc.robot.subsystems.ArmTelescopingSub;
 import frc.robot.subsystems.CameraSub;
@@ -41,6 +43,7 @@ import frc.robot.commands.InvertIntake;
 import frc.robot.commands.RotateArmCommand;
 import frc.robot.commands.RotateWristCommand;
 import frc.robot.commands.RunIntakeCommand;
+import frc.robot.commands.TelescopeHighCone;
 import frc.robot.commands.NavToTagCommand;
 import frc.robot.commands.PlatformBalanceCommand;
 import frc.robot.commands.ResetFOD;
@@ -63,6 +66,12 @@ public class RobotContainer {
   public final DriveSub driveSub = new DriveSub(AutoConstants.odo_BluePositionStart6);
   public final XboxController controller = new XboxController(0);
   private final XboxController controller2 = new XboxController(1);
+
+  public POVButton up = new POVButton(controller2, 0);
+  public POVButton left = new POVButton(controller2, 90);
+  public POVButton right = new POVButton(controller2, 180);
+  public POVButton down = new POVButton(controller2, 270);
+
 
   private MotionControl m_MotionControl;
   private AutoManager m_AutoManager;
@@ -99,11 +108,12 @@ public class RobotContainer {
 
     AprilTag targetTag = s_camSub.GetAprilTagFromID(6);
 
-    new JoystickButton(controller, XboxController.Button.kX.value).onTrue(new ArmSetPositionCommand(s_ArmRotation, 0, true));
-    new JoystickButton(controller, XboxController.Button.kY.value).onTrue(new WristSetPositionCommand(s_wrist, 0, true));
-    new JoystickButton(controller, XboxController.Button.kA.value).onTrue(new NavToTagCommand(s_camSub, driveSub, targetTag, true));
-    new JoystickButton(controller, XboxController.Button.kB.value).onTrue(new zeroGyro(driveSub));
-    new JoystickButton(controller, XboxController.Button.kStart.value).onTrue(new zeroWrist(s_wrist));
+    new JoystickButton(controller2, XboxController.Button.kX.value).onTrue(new ArmSetPositionCommand(s_ArmRotation, 0, true));
+    new JoystickButton(controller2, XboxController.Button.kY.value).onTrue(new WristSetPositionCommand(s_wrist, 0, true));
+    new JoystickButton(controller2, XboxController.Button.kA.value).onTrue(new NavToTagCommand(s_camSub, driveSub, targetTag, true));
+    new JoystickButton(controller2, XboxController.Button.kB.value).onTrue(new zeroGyro(driveSub));
+    new JoystickButton(controller2, XboxController.Button.kStart.value).onTrue(new zeroWrist(s_wrist));
+//     up.onTrue(new TelescopeHighCone(s_ArmTele));
   }
 
   /**
