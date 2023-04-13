@@ -25,14 +25,14 @@ public class ArmTelescopingSub extends SubsystemBase {
   // Output power on the arm being requested
   private double armOutRequested = 0;
 
-  private AnalogPotentiometer potentiometer;
+  // private AnalogPotentiometer potentiometer;
 
   // Constructor just taking motor and encoder IDS
   public ArmTelescopingSub(int talonDeviceNum1)
   {
     //Create the Two TalonFx Motors to drive the Arm
     armMotor1 = new TalonFX(talonDeviceNum1);
-    potentiometer = new AnalogPotentiometer(0);
+    // potentiometer = new AnalogPotentiometer(0);
 
     setMotorNeutralMode(NeutralMode.Brake);  
 
@@ -92,20 +92,20 @@ public class ArmTelescopingSub extends SubsystemBase {
     ;
   }
 
-  public void setHeight(double height) {
-    if((potentiometer.get() - height) > 1) {
-      armMotor1.set(ControlMode.PercentOutput, 0.5);
-    } else if((potentiometer.get() - height) < -1) {
-      armMotor1.set(ControlMode.PercentOutput, -0.5);
-    }
-  }
+  // public void setHeight(double height) {
+  //   if((potentiometer.get() - height) > 1) {
+  //     armMotor1.set(ControlMode.PercentOutput, 0.5);
+  //   } else if((potentiometer.get() - height) < -1) {
+  //     armMotor1.set(ControlMode.PercentOutput, -0.5);
+  //   }
+  // }
 
-  public boolean atHeight(double height) {
-    if(Math.abs(potentiometer.get() - height) < 1) {
-      return true;
-    }
-    return false;
-  }
+  // public boolean atHeight(double height) {
+  //   if(Math.abs(potentiometer.get() - height) < 1) {
+  //     return true;
+  //   }
+  //   return false;
+  // }
 
   private void useMotorConfig(TalonFXConfiguration config)
   {
