@@ -5,6 +5,7 @@ import java.util.function.IntToDoubleFunction;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.ParallelCommandGroup;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import frc.robot.commands.ArmKnownPositionCommand.ARMPOSITION;
 import frc.robot.subsystems.ArmRotationSub;
 import frc.robot.subsystems.ArmTelescopingSub;
 import frc.robot.subsystems.CameraSub;
@@ -20,10 +21,7 @@ public class CollectGamePieceCommand {
     ArmTelescopingSub armTele;
     WristSub wrist;
     IntakeSub intake;
-
-    double armAngle = 1.5;
-    double wristAngle = 57.0;
-
+    ArmKnownPositionCommand position;
 
     public CollectGamePieceCommand(DriveSub drv, 
                                    CameraSub cam, 
@@ -38,14 +36,15 @@ public class CollectGamePieceCommand {
         armTele = tele;
         wrist = wr;
         intake = in;
-    }
 
+        position = new ArmKnownPositionCommand(tele, rot, wr);
+    }
 
     public Command getCommand()
     {
         // Command to move arm and wrist into position
-        ParallelCommandGroup moveArm = new ParallelCommandGroup(new ArmSetPositionCommand(armRot, armAngle, false), 
-                                                                new WristSetPositionCommand(wrist, wristAngle, false));
+        Command moveArm = new ParallelCommandGroup(new ArmSetPositionCommand(armRot, 7, false), 
+                                                   new IntakePieceCommand(intake, 10));
 
         // Navigate to the game piece and activate intake to collect
         // SequentialCommandGroup collectPiece = new SequentialCommandGroup(new NavToGamepieceCommand(camera, drive, false),

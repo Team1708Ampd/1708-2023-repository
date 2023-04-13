@@ -52,15 +52,45 @@
     },
     {
       "anchorPoint": {
-        "x": 6.365921152894939,
-        "y": 0.9430548685658775
+        "x": 6.556354691656752,
+        "y": 0.9702596598175656
       },
       "prevControl": {
-        "x": 6.356852889144376,
-        "y": 0.9430548685658775
+        "x": 6.547286427906189,
+        "y": 0.9702596598175656
       },
-      "nextControl": null,
+      "nextControl": {
+        "x": 6.565422955407315,
+        "y": 0.9702596598175656
+      },
       "holonomicAngle": 0.0,
+      "isReversal": false,
+      "velOverride": null,
+      "isLocked": false,
+      "isStopPoint": true,
+      "stopEvent": {
+        "names": [
+          "collectPiece"
+        ],
+        "executionBehavior": "parallel",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
+    },
+    {
+      "anchorPoint": {
+        "x": 3.056004883939593,
+        "y": 1.088147088574879
+      },
+      "prevControl": {
+        "x": 3.5790244150105166,
+        "y": 1.088147088574879
+      },
+      "nextControl": {
+        "x": 2.532985352868669,
+        "y": 1.088147088574879
+      },
+      "holonomicAngle": 0,
       "isReversal": false,
       "velOverride": null,
       "isLocked": false,
@@ -71,19 +101,43 @@
         "waitBehavior": "none",
         "waitTime": 0
       }
+    },
+    {
+      "anchorPoint": {
+        "x": 2.348680311395711,
+        "y": 1.0428057698220663
+      },
+      "prevControl": {
+        "x": 2.9653222464339652,
+        "y": 1.0428057698220663
+      },
+      "nextControl": null,
+      "holonomicAngle": 0.0,
+      "isReversal": false,
+      "velOverride": null,
+      "isLocked": false,
+      "isStopPoint": false,
+      "stopEvent": {
+        "names": [
+          "outtake"
+        ],
+        "executionBehavior": "parallel",
+        "waitBehavior": "none",
+        "waitTime": 0
+      }
     }
   ],
   "markers": [
     {
       "position": 0.8181818181818195,
       "names": [
-        "collectPiece"
+        "armIntake"
       ]
     },
     {
-      "position": 1.6545454545454514,
+      "position": 2.4272727272727224,
       "names": [
-        "intake"
+        "ArmScoreLow"
       ]
     }
   ]

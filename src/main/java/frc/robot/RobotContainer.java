@@ -6,6 +6,8 @@ package frc.robot;
 
 import java.util.HashMap;
 
+import javax.swing.text.Position;
+
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoderConfiguration;
@@ -18,10 +20,12 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.commands.ArmKnownPositionCommand;
 import frc.robot.commands.ArmSetPositionCommand;
 import frc.robot.commands.CollectGamePieceCommand;
 import frc.robot.commands.DriveCommand;
 import frc.robot.commands.ExtendArmCommand;
+import frc.robot.commands.IntakePieceCommand;
 import frc.robot.subsystems.DriveSub;
 import frc.robot.subsystems.IntakeSub;
 import frc.robot.DriveConstants.*;
@@ -36,8 +40,6 @@ import frc.robot.subsystems.ArmRotationSub;
 import frc.robot.subsystems.ArmTelescopingSub;
 import frc.robot.subsystems.CameraSub;
 import frc.robot.subsystems.WristSub;
-import frc.robot.commands.DriveCommand;
-import frc.robot.commands.InvertIntake;
 import frc.robot.commands.RotateArmCommand;
 import frc.robot.commands.RotateWristCommand;
 import frc.robot.commands.RunIntakeCommand;
@@ -50,6 +52,8 @@ import frc.robot.commands.WristSetPositionCommand;
 import frc.robot.commands.zeroGyro;
 import frc.robot.commands.zeroWrist;
 import frc.robot.commands.OuttakeAutoCommand;
+
+import frc.robot.commands.ArmKnownPositionCommand.ARMPOSITION;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -73,6 +77,7 @@ public class RobotContainer {
   public WristSub s_wrist;
   private SendableChooser<Integer> autoChooser;
   private SendableChooser<Integer> teamChooser;
+  private ArmKnownPositionCommand armPositions;
   private boolean tilting = false;
   private double speed = -1;
 
@@ -208,11 +213,13 @@ public class RobotContainer {
 
     /******** CREATE CAMERA **********/
     s_camSub = new CameraSub(driveSub, getTeamSelecton());
+
+    armPositions = new ArmKnownPositionCommand(s_ArmTele, s_ArmRotation, s_wrist);
   }
 
   private void initAutoRoutines()
   {
-    double autoSpeed = 2;
+    double autoSpeed = 4;
     m_MotionControl = new MotionControl()
       .withTranslationPIDConstants(new PIDConstants(AutoConstants.kPIDXController, 0, 0))
       .withAngularPIDConstants(new PIDConstants(AutoConstants.kPIDThetaController, 0, 0))
@@ -233,7 +240,8 @@ public class RobotContainer {
       eventsMap.put("pickArmMove", new TiltArmCommand(2.3, false, s_ArmRotation));
       eventsMap.put("zeroGyro", new ResetFOD(driveSub));
       eventsMap.put("collectPiece", piece.getCommand());
-      eventsMap.put("intake", new TimedIntakeCommand(s_intake, 5));
+      eventsMap.put("ArmScoreLow", armPositions.getCommand(ARMPOSITION.SCORELOW));
+      eventsMap.put("armIntake", armPositions.getCommand(ARMPOSITION.INTAKE));
       
       m_AutoManager = new AutoManager(getTeamSelecton(), autoR)
                               .withMotionControl(m_MotionControl)

@@ -90,7 +90,7 @@ public class AutoManager  {
     {
 
         // Load the correct auto
-        List<PathPlannerTrajectory> autoPath = PathPlanner.loadPathGroup("RightSideBlueAuto4-11-6", new PathConstraints(maxSpeed, 3));
+        List<PathPlannerTrajectory> autoPath = PathPlanner.loadPathGroup("RightSideBlueAuto4-12-8", new PathConstraints(maxSpeed, 3));
 
         // Generate the Auto Command and return
         autoBuilder = new SwerveAutoBuilder(mController.getSwerveSubsystem()::getCurrentPose2d, 
