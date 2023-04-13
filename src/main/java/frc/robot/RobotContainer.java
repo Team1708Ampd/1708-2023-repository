@@ -45,7 +45,6 @@ import frc.robot.subsystems.WristSub;
 import frc.robot.commands.RotateArmCommand;
 import frc.robot.commands.RotateWristCommand;
 import frc.robot.commands.RunIntakeCommand;
-import frc.robot.commands.TelescopeHighCone;
 import frc.robot.commands.NavToTagCommand;
 import frc.robot.commands.PlatformBalanceCommand;
 import frc.robot.commands.ResetFOD;
@@ -113,11 +112,11 @@ public class RobotContainer {
 
     AprilTag targetTag = s_camSub.GetAprilTagFromID(6);
 
-    new JoystickButton(controller2, XboxController.Button.kX.value).onTrue(new ArmSetPositionCommand(s_ArmRotation, 0, true));
-    new JoystickButton(controller2, XboxController.Button.kY.value).onTrue(new WristSetPositionCommand(s_wrist, 0, true));
-    new JoystickButton(controller2, XboxController.Button.kA.value).onTrue(new NavToTagCommand(s_camSub, driveSub, targetTag, true));
-    new JoystickButton(controller2, XboxController.Button.kB.value).onTrue(new zeroGyro(driveSub));
-    new JoystickButton(controller2, XboxController.Button.kStart.value).onTrue(new zeroWrist(s_wrist));
+    new JoystickButton(controller, XboxController.Button.kX.value).onTrue(new ArmSetPositionCommand(s_ArmRotation, 0, true));
+    new JoystickButton(controller, XboxController.Button.kY.value).onTrue(new WristSetPositionCommand(s_wrist, 0, true));
+    new JoystickButton(controller, XboxController.Button.kA.value).onTrue(new NavToTagCommand(s_camSub, driveSub, targetTag, true));
+    new JoystickButton(controller, XboxController.Button.kB.value).onTrue(new zeroGyro(driveSub));
+    new JoystickButton(controller, XboxController.Button.kStart.value).onTrue(new zeroWrist(s_wrist));
 //     up.onTrue(new TelescopeHighCone(s_ArmTele));
   }
 
@@ -251,7 +250,7 @@ public class RobotContainer {
       eventsMap.put("zeroGyro", new ResetFOD(driveSub));
       eventsMap.put("collectPiece", piece.getCommand());
       eventsMap.put("ArmScoreLow", armPositions.getCommand(ARMPOSITION.SCORELOW));
-      eventsMap.put("armIntake", armPositions.getCommand(ARMPOSITION.INTAKE));
+      eventsMap.put("armIntake", armPositions.getCommand(ARMPOSITION.INTAKEGROUND));
       
       m_AutoManager = new AutoManager(getTeamSelecton(), autoR)
                               .withMotionControl(m_MotionControl)
