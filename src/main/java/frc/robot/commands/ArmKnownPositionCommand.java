@@ -54,6 +54,11 @@ public class ArmKnownPositionCommand{
             rc = new ParallelCommandGroup(new ArmSetPositionCommand(armRot, 30, false),
                                           new WristSetPositionCommand(wrist, 130, false));
             break;
+
+            case BALANCE:
+            rc = new ParallelCommandGroup(new ArmSetPositionCommand(armRot, 150, false),
+                                          new WristSetPositionCommand(wrist, 130, false));
+            break;
         }
 
         return rc;
@@ -66,7 +71,8 @@ public class ArmKnownPositionCommand{
         SCOREMID,
         SCORELOW, 
         SCOREREVERSE,
-        INTAKE
+        INTAKE,
+        BALANCE
     }
 
 }

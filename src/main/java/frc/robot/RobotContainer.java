@@ -45,7 +45,6 @@ import frc.robot.subsystems.WristSub;
 import frc.robot.commands.RotateArmCommand;
 import frc.robot.commands.RotateWristCommand;
 import frc.robot.commands.RunIntakeCommand;
-import frc.robot.commands.TelescopeHighCone;
 import frc.robot.commands.NavToTagCommand;
 import frc.robot.commands.PlatformBalanceCommand;
 import frc.robot.commands.ResetFOD;
@@ -84,8 +83,7 @@ public class RobotContainer {
   public ArmRotationSub  s_ArmRotation;
   private ArmTelescopingSub s_ArmTele;
   public WristSub s_wrist;
-  private SendableChooser<Integer> autoChooser;
-  private SendableChooser<Integer> teamChooser;
+  private SendableChooser<String> autoChooser;
   private ArmKnownPositionCommand armPositions;
   private boolean tilting = false;
   private double speed = -1;
@@ -222,7 +220,7 @@ public class RobotContainer {
                               () -> controller2.getRightBumper()));
 
     /******** CREATE CAMERA **********/
-    s_camSub = new CameraSub(driveSub, getTeamSelecton());
+    s_camSub = new CameraSub(driveSub);
 
     armPositions = new ArmKnownPositionCommand(s_ArmTele, s_ArmRotation, s_wrist);
   }
@@ -246,84 +244,46 @@ public class RobotContainer {
       HashMap<String, Command> eventsMap = new HashMap<>();
       eventsMap.put("balance", new PlatformBalanceCommand(driveSub));
       eventsMap.put("outtake", new OuttakeAutoCommand(s_intake));
-      eventsMap.put("tiltArm", new TiltArmCommand(1, false, s_ArmRotation));
-      eventsMap.put("pickArmMove", new TiltArmCommand(2.3, false, s_ArmRotation));
       eventsMap.put("zeroGyro", new ResetFOD(driveSub));
       eventsMap.put("collectPiece", piece.getCommand());
       eventsMap.put("ArmScoreLow", armPositions.getCommand(ARMPOSITION.SCORELOW));
-      eventsMap.put("armIntake", armPositions.getCommand(ARMPOSITION.INTAKE));
+      eventsMap.put("ArmIntakePosition", armPositions.getCommand(ARMPOSITION.INTAKE));
+      eventsMap.put("ArmBalance", armPositions.getCommand(ARMPOSITION.BALANCE));
       
-      m_AutoManager = new AutoManager(getTeamSelecton(), autoR)
-                              .withMotionControl(m_MotionControl)
-                              .withEventMap(eventsMap)
-                              .withMaxSpeed(autoSpeed);
+      m_AutoManager = new AutoManager(autoR)
+                        .withMotionControl(m_MotionControl)
+                        .withEventMap(eventsMap)
+                        .withMaxSpeed(autoSpeed);
     }      
   }
 
   private void initCompetitionShuffleboard()
   {
-    autoChooser = new SendableChooser<Integer>();
-    autoChooser.setDefaultOption("Left", 1);
-    autoChooser.addOption("Center", 2);
-    autoChooser.addOption("Right", 3);
-    autoChooser.addOption("Basic", 4);
+    autoChooser = new SendableChooser<String>();    
 
-    teamChooser = new SendableChooser<Integer>();
-    teamChooser.setDefaultOption("BLUE", 1);
-    teamChooser.addOption("RED", 2);
+    for (AutoRoutine routine : AutoRoutine.values())
+    {
+      autoChooser.addOption(routine.name(), routine.name());
+    }
+
+    autoChooser.setDefaultOption("BASIC", "BASIC");
 
     Shuffleboard.getTab("SmartDashboard")
       .add(autoChooser);  
-
-    Shuffleboard.getTab("SmartDashboard")
-      .add(teamChooser);
   }
 
   private AutoRoutine getAutoSelecton()
   {
     AutoRoutine routine = AutoRoutine.BASIC;
     
-    switch(autoChooser.getSelected())
+    for (AutoRoutine r : AutoRoutine.values())
     {
-      case 1:
-        routine = AutoRoutine.BLUE1PARK;
-      break;
-    
-      case 2:
-      routine = AutoRoutine.BLUE2PARK;
-      break;
-
-      case 3:
-      routine = AutoRoutine.BLUE3PARK;
-      break;
-
-      default:
-      routine = AutoRoutine.BASIC;
-      break;
+      if (r.name() == autoChooser.getSelected())
+      {
+        routine = r;
+      }
     }
 
     return routine;
-  }
-
-  private TeamColor getTeamSelecton()
-  {
-    TeamColor team = TeamColor.BLUE;
-    
-    switch(teamChooser.getSelected())
-    {
-      case 1:
-        team = TeamColor.BLUE;
-      break;
-
-      case 2:
-        team = TeamColor.RED;
-      break;
-
-      default:
-        team = TeamColor.BLUE;
-      break;
-    }
-
-    return team;
   }
 }

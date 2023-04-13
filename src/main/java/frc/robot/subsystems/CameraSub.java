@@ -11,8 +11,8 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.AutoManager.TeamColor;
 
 import java.io.IOException;
 
@@ -36,7 +36,7 @@ public class CameraSub extends SubsystemBase {
 
 
   /** Creates a new CameraSub. */
-  public CameraSub(DriveSub driverSub, TeamColor alliance) {
+  public CameraSub(DriveSub driverSub) {
     limelight_one = NetworkTableInstance.getDefault().getTable("limelight");
     limelight_two = NetworkTableInstance.getDefault().getTable("limelight-one");
 
@@ -52,7 +52,7 @@ public class CameraSub extends SubsystemBase {
     try{
       // Load the field 
       field = AprilTagFields.k2023ChargedUp.loadAprilTagLayoutField();
-      if (alliance == TeamColor.BLUE)
+      if (DriverStation.getAlliance() == Alliance.Blue)
       {
         field.setOrigin(AprilTagFieldLayout.OriginPosition.kBlueAllianceWallRightSide);
       }
@@ -76,10 +76,6 @@ public class CameraSub extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-
-    
-
-
 
   }
 

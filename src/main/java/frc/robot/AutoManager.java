@@ -13,7 +13,7 @@ import com.pathplanner.lib.auto.PIDConstants;
 import com.pathplanner.lib.auto.SwerveAutoBuilder;
 
 import edu.wpi.first.wpilibj2.command.Command;
-
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.DriveConstants.*;
 
 public class AutoManager  {
@@ -37,9 +37,8 @@ public class AutoManager  {
     double maxSpeed = 4;
 
     // Specify Team and position
-    public AutoManager(TeamColor color, AutoRoutine autoRoutine)
+    public AutoManager(AutoRoutine autoRoutine)
     {
-        matchColor = color;
         routine = autoRoutine;        
     }
 
@@ -88,9 +87,10 @@ public class AutoManager  {
 
     public Command generateAuto() 
     {
+        Command autoCmd;
 
         // Load the correct auto
-        List<PathPlannerTrajectory> autoPath = PathPlanner.loadPathGroup("RightSideBlueAuto4-12-8", new PathConstraints(maxSpeed, 3));
+        List<PathPlannerTrajectory> path1 = PathPlanner.loadPathGroup("RightSideBlueAuto4-12-8", new PathConstraints(maxSpeed, 3));
 
         // Generate the Auto Command and return
         autoBuilder = new SwerveAutoBuilder(mController.getSwerveSubsystem()::getCurrentPose2d, 
@@ -100,16 +100,29 @@ public class AutoManager  {
                                             mController.getPIDAngularConstants(), 
                                             mController.getSwerveSubsystem()::drive,
                                             autoEventMap,
-                                            matchColor == TeamColor.BLUE,
+                                            true,
                                             mController.getSwerveSubsystem());
+
+        if (routine == AutoRoutine.LEFT3PIECE)
+        {
+            List<PathPlannerTrajectory> path2 = PathPlanner.loadPathGroup(AutoRoutine.LEFT2PIECE.toString(), new PathConstraints(maxSpeed, 3));
+
+            autoCmd = new SequentialCommandGroup(autoBuilder.fullAuto(path2), autoBuilder.fullAuto(path1));
+        }
+        else if (routine == AutoRoutine.RIGHT3PIECE)
+        {
+            List<PathPlannerTrajectory> path2 = PathPlanner.loadPathGroup(AutoRoutine.RIGHT2PIECE.toString(), new PathConstraints(maxSpeed, 3));
+
+            autoCmd = new SequentialCommandGroup(autoBuilder.fullAuto(path2), autoBuilder.fullAuto(path1));
+        }
+        else
+        {
+            autoCmd = autoBuilder.fullAuto(path1);
+        }
         
         // Return the fully constructed auto command
-        return autoBuilder.fullAuto(autoPath);
+        return autoCmd;
     }
-
-
-    
-
 
 
     public enum TeamColor
@@ -120,21 +133,42 @@ public class AutoManager  {
 
     public enum AutoRoutine
     {
-        BLUE1PARK{
+        RIGHT2PIECE{
             @Override
             public String toString()
             {
                 return "LeftSideBlueAuto4-4";
             }
         },
-        BLUE2PARK{
+        RIGHT2PIECEBALANCE{
             @Override
             public String toString()
             {
                 return "CenterBlue4-4";
             }
         },
-        BLUE3PARK{
+        RIGHT3PIECE{
+            @Override
+            public String toString()
+            {
+                return "RightSideBlueAuto4-11-3";
+            }
+        },
+        LEFT2PIECE{
+            @Override
+            public String toString()
+            {
+                return "LeftSideBlueAuto4-4";
+            }
+        },
+        LEFT2PIECEBALANCE{
+            @Override
+            public String toString()
+            {
+                return "CenterBlue4-4";
+            }
+        },
+        LEFT3PIECE{
             @Override
             public String toString()
             {
