@@ -44,14 +44,23 @@ public class ArmKnownPositionCommand{
                                           new WristSetPositionCommand(wrist, 11, false));
             break;
 
-            case SCOREREVERSE:
-            rc = new ParallelCommandGroup(new ArmSetPositionCommand(armRot, 5, false),
-                                          new WristSetPositionCommand(wrist, 57, false));
-
+            case INTAKEGROUND:
+            rc = new ParallelCommandGroup(new ArmSetPositionCommand(armRot, 30, false),
+                                          new WristSetPositionCommand(wrist, 130, false));
             break;
 
-            case INTAKE:
-            rc = new ParallelCommandGroup(new ArmSetPositionCommand(armRot, 30, false),
+            case INTAKEFEEDER:
+             rc = new ParallelCommandGroup(new ArmSetPositionCommand(armRot, 30, false),
+                                          new WristSetPositionCommand(wrist, 130, false));
+            break;
+
+            case SCOREMIDCONE:
+             rc = new ParallelCommandGroup(new ArmSetPositionCommand(armRot, 30, false),
+                                          new WristSetPositionCommand(wrist, 130, false));
+            break;
+
+            case SCOREHIGHCONE:
+             rc = new ParallelCommandGroup(new ArmSetPositionCommand(armRot, 30, false),
                                           new WristSetPositionCommand(wrist, 130, false));
             break;
 
@@ -70,8 +79,10 @@ public class ArmKnownPositionCommand{
         SCOREHIGH, 
         SCOREMID,
         SCORELOW, 
-        SCOREREVERSE,
-        INTAKE,
+        INTAKEFEEDER,
+        INTAKEGROUND,
+        SCOREMIDCONE,
+        SCOREHIGHCONE,
         BALANCE
     }
 

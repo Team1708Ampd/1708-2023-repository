@@ -21,7 +21,7 @@ public class ExtendArmCommand extends CommandBase {
   private BooleanSupplier armInCmd;
   private BooleanSupplier armOutCmd;
 
-  private final double ARM_SPEED_MAX = 0.7;
+  private final double ARM_SPEED_MAX = 1;
   private final double ARM_SPEED_MIN = 0.3;
   
 
