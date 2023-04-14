@@ -128,17 +128,8 @@ public class RobotContainer {
 
     // Initialize the AutoRoutines that control robotic movement
     initAutoRoutines();
-
-    if (getAutoSelecton() == AutoRoutine.BASIC)
-    {
-      SequentialCommandGroup autoCMD = new SequentialCommandGroup(new TiltArmCommand(1, true, s_ArmRotation), 
-                                                                  new OuttakeAutoCommand(s_intake));
-      return autoCMD;
-    }
-    else
-    {
-      return m_AutoManager.generateAuto();
-    }  
+    
+    return m_AutoManager.generateAuto();  
   }
 
   private static double deadband(double value, double deadband) {
@@ -235,26 +226,21 @@ public class RobotContainer {
 
     AutoRoutine autoR = getAutoSelecton();
 
-    if (autoR != AutoRoutine.BASIC)
-    {
+    CollectGamePieceCommand piece = new CollectGamePieceCommand(driveSub, s_camSub, s_ArmRotation, s_ArmTele, s_wrist, s_intake);
 
-      CollectGamePieceCommand piece = new CollectGamePieceCommand(driveSub, s_camSub, s_ArmRotation, s_ArmTele, s_wrist, s_intake);
-
-
-      HashMap<String, Command> eventsMap = new HashMap<>();
-      eventsMap.put("balance", new PlatformBalanceCommand(driveSub));
-      eventsMap.put("outtake", new OuttakeAutoCommand(s_intake));
-      eventsMap.put("zeroGyro", new ResetFOD(driveSub));
-      eventsMap.put("collectPiece", piece.getCommand());
-      eventsMap.put("ArmScoreLow", armPositions.getCommand(ARMPOSITION.SCORELOW));
-      eventsMap.put("ArmIntakePosition", armPositions.getCommand(ARMPOSITION.INTAKEGROUND));
-      eventsMap.put("ArmBalance", armPositions.getCommand(ARMPOSITION.BALANCE));
-      
-      m_AutoManager = new AutoManager(autoR)
-                        .withMotionControl(m_MotionControl)
-                        .withEventMap(eventsMap)
-                        .withMaxSpeed(autoSpeed);
-    }      
+    HashMap<String, Command> eventsMap = new HashMap<>();
+    eventsMap.put("balance", new PlatformBalanceCommand(driveSub));
+    eventsMap.put("outtake", new OuttakeAutoCommand(s_intake));
+    eventsMap.put("zeroGyro", new ResetFOD(driveSub));
+    eventsMap.put("collectPiece", piece.getCommand());
+    eventsMap.put("ArmScoreLow", armPositions.getCommand(ARMPOSITION.SCORELOW));
+    eventsMap.put("ArmIntakePosition", armPositions.getCommand(ARMPOSITION.INTAKEGROUND));
+    eventsMap.put("ArmBalance", armPositions.getCommand(ARMPOSITION.BALANCE));
+    
+    m_AutoManager = new AutoManager(autoR)
+                      .withMotionControl(m_MotionControl)
+                      .withEventMap(eventsMap)
+                      .withMaxSpeed(autoSpeed);
   }
 
   private void initCompetitionShuffleboard()
