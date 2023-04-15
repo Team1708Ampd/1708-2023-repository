@@ -34,7 +34,7 @@ public class AutoManager  {
     HashMap<String, Command> autoEventMap;
 
     // Max speed limit
-    double maxSpeed = 4;
+    double maxSpeed = 4.5;
 
     // Specify Team and position
     public AutoManager(TeamColor color, AutoRoutine autoRoutine)
@@ -90,7 +90,7 @@ public class AutoManager  {
     {
 
         // Load the correct auto
-        List<PathPlannerTrajectory> autoPath = PathPlanner.loadPathGroup(routine.toString(), new PathConstraints(maxSpeed, 3));
+        List<PathPlannerTrajectory> autoPath = PathPlanner.loadPathGroup("RightSideBlueAuto4-15-28", new PathConstraints(maxSpeed, 3));
 
         // Generate the Auto Command and return
         autoBuilder = new SwerveAutoBuilder(mController.getSwerveSubsystem()::getCurrentPose2d, 
@@ -100,12 +100,17 @@ public class AutoManager  {
                                             mController.getPIDAngularConstants(), 
                                             mController.getSwerveSubsystem()::drive,
                                             autoEventMap,
-                                            matchColor == TeamColor.BLUE,
+                                            matchColor == TeamColor.RED,
                                             mController.getSwerveSubsystem());
         
         // Return the fully constructed auto command
         return autoBuilder.fullAuto(autoPath);
     }
+
+
+    
+
+
 
     public enum TeamColor
     {
@@ -133,7 +138,7 @@ public class AutoManager  {
             @Override
             public String toString()
             {
-                return "RightSideBlueAuto4-4";
+                return "RightSideBlueAuto4-11-3";
             }
         },
         BASIC{

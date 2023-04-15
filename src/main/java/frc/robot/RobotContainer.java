@@ -6,6 +6,8 @@ package frc.robot;
 
 import java.util.HashMap;
 
+import javax.swing.text.Position;
+
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.sensors.AbsoluteSensorRange;
 import com.ctre.phoenix.sensors.CANCoderConfiguration;
@@ -13,16 +15,18 @@ import com.ctre.phoenix.sensors.SensorInitializationStrategy;
 import com.pathplanner.lib.auto.PIDConstants;
 import frc.robot.swervelib.ctre.CanCoderFactoryBuilder.Direction;
 import edu.wpi.first.apriltag.AprilTag;
-import edu.wpi.first.apriltag.AprilTagFields;
-import edu.wpi.first.cameraserver.CameraServer;
-import edu.wpi.first.cscore.HttpCamera;
-import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.commands.ArmKnownPositionCommand;
+import frc.robot.commands.ArmSetPositionCommand;
+import frc.robot.commands.CollectGamePieceCommand;
 import frc.robot.commands.DriveCommand;
+import frc.robot.commands.ExtendArmCommand;
+import frc.robot.commands.IntakePieceCommand;
 import frc.robot.subsystems.DriveSub;
 import frc.robot.subsystems.IntakeSub;
 import frc.robot.DriveConstants.*;
@@ -33,26 +37,25 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.button.POVButton;
 import frc.robot.subsystems.ArmRotationSub;
 import frc.robot.subsystems.ArmTelescopingSub;
 import frc.robot.subsystems.CameraSub;
 import frc.robot.subsystems.WristSub;
-import frc.robot.commands.DriveCommand;
-import frc.robot.commands.IntakeCommand;
-import frc.robot.commands.InvertIntake;
-import frc.robot.commands.ManualArmDown;
-import frc.robot.commands.ManualArmIn;
-import frc.robot.commands.ManualArmOut;
-import frc.robot.commands.ManualArmUp;
-import frc.robot.commands.ManualWristDown;
-import frc.robot.commands.ManualWristUp;
-import frc.robot.commands.NavigateToAprilTagCommand;
-import frc.robot.commands.OuttakeCommand;
+import frc.robot.commands.RotateArmCommand;
+import frc.robot.commands.RotateWristCommand;
+import frc.robot.commands.RunIntakeCommand;
+import frc.robot.commands.NavToTagCommand;
 import frc.robot.commands.PlatformBalanceCommand;
 import frc.robot.commands.ResetFOD;
 import frc.robot.commands.TiltArmCommand;
+import frc.robot.commands.TimedIntakeCommand;
+import frc.robot.commands.WristSetPositionCommand;
 import frc.robot.commands.zeroGyro;
+import frc.robot.commands.zeroWrist;
 import frc.robot.commands.OuttakeAutoCommand;
+
+import frc.robot.commands.ArmKnownPositionCommand.ARMPOSITION;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -67,17 +70,24 @@ public class RobotContainer {
   public final XboxController controller = new XboxController(0);
   private final XboxController controller2 = new XboxController(1);
 
+  public POVButton up = new POVButton(controller2, 0);
+  public POVButton left = new POVButton(controller2, 90);
+  public POVButton right = new POVButton(controller2, 180);
+  public POVButton down = new POVButton(controller2, 270);
+
+
   private MotionControl m_MotionControl;
   private AutoManager m_AutoManager;
   private CameraSub s_camSub;
   private IntakeSub s_intake;
-  private ArmRotationSub  s_ArmRotation;
+  public ArmRotationSub  s_ArmRotation;
   private ArmTelescopingSub s_ArmTele;
-  private WristSub s_wrist;
+  public WristSub s_wrist;
   private SendableChooser<Integer> autoChooser;
   private SendableChooser<Integer> teamChooser;
+  private ArmKnownPositionCommand armPositions;
   private boolean tilting = false;
-  double speed = -1;
+  private double speed = -1;
 
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
@@ -99,21 +109,18 @@ public class RobotContainer {
    * edu.wpi.first.wpilibj2.command.button.JoystickButton}.
    */
   private void configureButtonBindings() {
-    new JoystickButton(controller2, XboxController.Button.kA.value).whileTrue(new IntakeCommand(s_intake));
-    new JoystickButton(controller2, XboxController.Button.kB.value).whileTrue(new OuttakeCommand(s_intake));
 
-    new JoystickButton(controller2, XboxController.Button.kLeftBumper.value).whileTrue(new ManualWristUp(s_wrist));
-    new JoystickButton(controller2, XboxController.Button.kRightBumper.value).whileTrue(new ManualWristDown(s_wrist));
-
-    new JoystickButton(controller2, XboxController.Button.kBack.value).whileTrue(new ManualArmIn(s_ArmTele));
-    new JoystickButton(controller2, XboxController.Button.kStart.value).whileTrue(new ManualArmOut(s_ArmTele));
-
-    new JoystickTrigger(controller2, XboxController.Axis.kLeftTrigger.value).whileTrue(new ManualArmUp(s_ArmRotation));
-    new JoystickTrigger(controller2, XboxController.Axis.kRightTrigger.value).whileTrue(new ManualArmDown(s_ArmRotation));
     AprilTag targetTag = s_camSub.GetAprilTagFromID(6);
 
-    new JoystickButton(controller, XboxController.Button.kA.value).onTrue(new PlatformBalanceCommand(driveSub));
+    new JoystickButton(controller, XboxController.Button.kX.value).onTrue(new ArmSetPositionCommand(s_ArmRotation, 0, true));
+    new JoystickButton(controller, XboxController.Button.kY.value).onTrue(new WristSetPositionCommand(s_wrist, 0, true));
+    new JoystickButton(controller, XboxController.Button.kA.value).onTrue(new NavToTagCommand(s_camSub, driveSub, targetTag, true));
     new JoystickButton(controller, XboxController.Button.kB.value).onTrue(new zeroGyro(driveSub));
+    new JoystickButton(controller, XboxController.Button.kStart.value).onTrue(new zeroWrist(s_wrist));
+
+    down.onTrue(armPositions.getCommand(ARMPOSITION.SCORELOW));
+    right.onTrue(armPositions.getCommand(ARMPOSITION.SCOREMID));
+//     up.onTrue(new TelescopeHighCone(s_ArmTele));
   }
 
   /**
@@ -187,27 +194,44 @@ public class RobotContainer {
     cancoderConfig.initializationStrategy = SensorInitializationStrategy.BootToAbsolutePosition;
     
     // Arm Rotation
-    s_ArmRotation = new ArmRotationSub(8, 9, 4)
+    s_ArmRotation = new ArmRotationSub(8, 4)
                           .withTalonConfig(armConfig)
                           .withEncoderConfiguration(cancoderConfig);
+    s_ArmRotation.setDefaultCommand(new RotateArmCommand(s_ArmRotation, 
+                                    () -> controller2.getLeftTriggerAxis(), 
+                                    () -> controller2.getRightTriggerAxis()));
 
     // Arm Extension
     s_ArmTele = new ArmTelescopingSub(10)
                       .withTalonConfig(armConfig);
 
+    s_ArmTele.setDefaultCommand(new ExtendArmCommand(s_ArmTele, 
+                                () -> controller2.getBackButton(),
+                                () -> controller2.getStartButton()));
+
     /******** CREATE WRIST **********/
 
     s_intake = new IntakeSub(11);
 
+    s_intake.setDefaultCommand(new RunIntakeCommand(s_intake, 
+                                () -> controller2.getAButton(), 
+                                () -> controller2.getBButton()));
+
     s_wrist = new WristSub(12);
+
+    s_wrist.setDefaultCommand(new RotateWristCommand(s_wrist,
+                              () -> controller2.getLeftBumper(), 
+                              () -> controller2.getRightBumper()));
 
     /******** CREATE CAMERA **********/
     s_camSub = new CameraSub(driveSub, getTeamSelecton());
+
+    armPositions = new ArmKnownPositionCommand(s_ArmTele, s_ArmRotation, s_wrist);
   }
 
   private void initAutoRoutines()
   {
-    double autoSpeed = 2;
+    double autoSpeed = 4;
     m_MotionControl = new MotionControl()
       .withTranslationPIDConstants(new PIDConstants(AutoConstants.kPIDXController, 0, 0))
       .withAngularPIDConstants(new PIDConstants(AutoConstants.kPIDThetaController, 0, 0))
@@ -217,12 +241,19 @@ public class RobotContainer {
 
     if (autoR != AutoRoutine.BASIC)
     {
+
+      CollectGamePieceCommand piece = new CollectGamePieceCommand(driveSub, s_camSub, s_ArmRotation, s_ArmTele, s_wrist, s_intake);
+
+
       HashMap<String, Command> eventsMap = new HashMap<>();
       eventsMap.put("balance", new PlatformBalanceCommand(driveSub));
       eventsMap.put("outtake", new OuttakeAutoCommand(s_intake));
-      eventsMap.put("tiltArm", new TiltArmCommand(0, true, s_ArmRotation));
+      eventsMap.put("tiltArm", new TiltArmCommand(1, false, s_ArmRotation));
       eventsMap.put("pickArmMove", new TiltArmCommand(2.3, false, s_ArmRotation));
-      eventsMap.put("zeroGyro", new zeroGyro(driveSub));
+      eventsMap.put("zeroGyro", new ResetFOD(driveSub));
+      eventsMap.put("collectPiece", piece.getCommand());
+      eventsMap.put("ArmScoreLow", armPositions.getCommand(ARMPOSITION.SCORELOW));
+      eventsMap.put("armIntake", armPositions.getCommand(ARMPOSITION.INTAKE));
       
       m_AutoManager = new AutoManager(getTeamSelecton(), autoR)
                               .withMotionControl(m_MotionControl)

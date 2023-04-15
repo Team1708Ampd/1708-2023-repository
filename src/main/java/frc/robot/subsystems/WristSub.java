@@ -44,6 +44,9 @@ public class WristSub extends SubsystemBase {
 
     // Init the encoder
     sparkRelEncoder = wristMotor.getEncoder();
+
+    // Init the position to 0
+    sparkRelEncoder.setPosition(0);
       
 
     // Set the initial speed of the motor
@@ -57,6 +60,16 @@ public class WristSub extends SubsystemBase {
 
   public void stopWrist(){
     wristMotor.stopMotor();
+  }
+
+  public double getWristPosition()
+  {
+    return encoderWristPosition;
+  }
+
+  public void zeroWrist()
+  {
+    sparkRelEncoder.setPosition(0);
   }
 
   @Override

@@ -4,53 +4,43 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Robot;
+import frc.robot.subsystems.DriveSub;
 import frc.robot.subsystems.IntakeSub;
+import frc.robot.subsystems.WristSub;
 
-public class OuttakeAutoCommand extends CommandBase {
+public class zeroWrist extends CommandBase {
+  // Intake subsystem
+  WristSub wrist;
 
-  IntakeSub intakeSubsystem;
+  /** Creates a new InvertIntake. */
+  public zeroWrist(WristSub wr) {
 
-  /** Creates a new OuttakeCommand. */
-  double time;
-  public OuttakeAutoCommand(IntakeSub intake) {
+    wrist = wr;
 
-    intakeSubsystem = intake;
-    
-    // Use addRequirements() here to declare subsystem dependencies.
-    addRequirements(intake);
+    addRequirements(wrist);
   }
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {
-    time = Timer.getFPGATimestamp();
+  public void initialize() { 
+    wrist.zeroWrist();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    intakeSubsystem.setIntake(1);
+    
   }
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {
-    intakeSubsystem.setIntake(0);
-  }
+  public void end(boolean interrupted) {}
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    boolean rc = false;
-
-    if (Timer.getFPGATimestamp() > (time + 1))
-    {
-      rc = true;
-    }
-
-    return rc;
+    return true;
   }
 }
