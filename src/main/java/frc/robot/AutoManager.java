@@ -90,7 +90,7 @@ public class AutoManager  {
     {
 
         // Load the correct auto
-        List<PathPlannerTrajectory> autoPath = PathPlanner.loadPathGroup("RightSideBlueAuto4-15-28", new PathConstraints(maxSpeed, 3));
+        List<PathPlannerTrajectory> autoPath = PathPlanner.loadPathGroup(routine.toString(), new PathConstraints(maxSpeed, 3));
 
         // Generate the Auto Command and return
         autoBuilder = new SwerveAutoBuilder(mController.getSwerveSubsystem()::getCurrentPose2d, 
@@ -107,11 +107,6 @@ public class AutoManager  {
         return autoBuilder.fullAuto(autoPath);
     }
 
-
-    
-
-
-
     public enum TeamColor
     {
         RED,
@@ -120,25 +115,25 @@ public class AutoManager  {
 
     public enum AutoRoutine
     {
-        BLUE1PARK{
+        LEFT{
             @Override
             public String toString()
             {
-                return "LeftSideBlueAuto4-4";
+                return "HoustonLeft-1";
             }
         },
-        BLUE2PARK{
+        CENTER{
             @Override
             public String toString()
             {
-                return "CenterBlue4-4";
+                return "HoustonCenter-1";
             }
         },
-        BLUE3PARK{
+        RIGHT{
             @Override
             public String toString()
             {
-                return "RightSideBlueAuto4-11-3";
+                return "HoustonRight-1";
             }
         },
         BASIC{

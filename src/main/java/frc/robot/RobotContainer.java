@@ -258,7 +258,8 @@ public class RobotContainer {
       m_AutoManager = new AutoManager(getTeamSelecton(), autoR)
                               .withMotionControl(m_MotionControl)
                               .withEventMap(eventsMap)
-                              .withMaxSpeed(autoSpeed);
+                              .withMaxSpeed(autoSpeed)
+                              .withStartPosition(getAutoSelecton());
     }      
   }
 
@@ -288,15 +289,15 @@ public class RobotContainer {
     switch(autoChooser.getSelected())
     {
       case 1:
-        routine = AutoRoutine.BLUE1PARK;
+        routine = AutoRoutine.LEFT;
       break;
     
       case 2:
-      routine = AutoRoutine.BLUE2PARK;
+      routine = AutoRoutine.CENTER;
       break;
 
       case 3:
-      routine = AutoRoutine.BLUE3PARK;
+      routine = AutoRoutine.RIGHT;
       break;
 
       default:
